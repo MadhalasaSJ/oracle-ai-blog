@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oracle AI Tools: The Future of Intelligent Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #C0392B;
+    --red-dark: #922B21;
+    --red-light: #E74C3C;
+    --cream: #FAF7F2;
+    --ink: #1A1207;
+    --stone: #7D6E5B;
+    --warm-white: #FDF9F4;
+    --accent-gold: #D4A843;
+    --border: #E8DFD0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh;
+    background: var(--ink);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 80px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -200px; left: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(192,57,43,0.25) 0%, transparent 70%);
+    animation: pulse 6s ease-in-out infinite;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -150px; right: -150px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(212,168,67,0.15) 0%, transparent 70%);
+    animation: pulse 8s ease-in-out infinite reverse;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.2); opacity: 1; }
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent-gold);
+    margin-bottom: 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(48px, 8vw, 96px);
+    font-weight: 900;
+    line-height: 1;
+    color: var(--cream);
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--red-light);
+  }
+
+  .hero-sub {
+    margin-top: 32px;
+    font-size: 18px;
+    font-weight: 300;
+    color: #B0A090;
+    max-width: 560px;
+    line-height: 1.7;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-divider {
+    width: 60px;
+    height: 2px;
+    background: var(--red);
+    margin: 40px auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #6B5B4E;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    z-index: 1;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  .scroll-hint::after {
+    content: '';
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, #6B5B4E, transparent);
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
+  }
+
+  /* ─── LAYOUT ─── */
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  /* ─── INTRO STRIP ─── */
+  .intro-strip {
+    background: var(--red);
+    padding: 60px 40px;
+    text-align: center;
+  }
+
+  .intro-strip p {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 3vw, 30px);
+    font-weight: 400;
+    font-style: italic;
+    color: var(--cream);
+    max-width: 780px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  /* ─── ARTICLE BODY ─── */
+  .article {
+    padding: 80px 0;
+  }
+
+  .section {
+    margin-bottom: 80px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section-number {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--red);
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+
+  .section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 24px;
+  }
+
+  .section h2 span {
+    color: var(--red);
+  }
+
+  .section p {
+    font-size: 17px;
+    font-weight: 300;
+    line-height: 1.85;
+    color: #3D2E1E;
+    margin-bottom: 20px;
+  }
+
+  /* ─── FEATURE CARDS ─── */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 2px;
+    margin: 48px 0;
+    background: var(--border);
+  }
+
+  .feature-card {
+    background: var(--warm-white);
+    padding: 36px 28px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+
+  .feature-card:hover {
+    background: var(--ink);
+  }
+
+  .feature-card:hover .fc-title,
+  .feature-card:hover .fc-body {
+    color: var(--cream);
+  }
+
+  .feature-card:hover .fc-icon {
+    background: var(--red);
+    color: white;
+  }
+
+  .fc-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 4px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 20px;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  .fc-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    transition: color 0.3s;
+  }
+
+  .fc-body {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--stone);
+    font-weight: 300;
+    transition: color 0.3s;
+  }
+
+  /* ─── PULL QUOTE ─── */
+  .pull-quote {
+    border-left: 4px solid var(--red);
+    padding: 24px 32px;
+    margin: 48px 0;
+    background: var(--warm-white);
+  }
+
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(18px, 2.5vw, 24px);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* ─── STAT ROW ─── */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--border);
+    margin: 48px 0;
+  }
+
+  .stat-cell {
+    background: var(--ink);
+    padding: 40px 24px;
+    text-align: center;
+  }
+
+  .stat-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--accent-gold);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #8A7A6A;
+    margin-top: 10px;
+  }
+
+  /* ─── TOOL SPOTLIGHT ─── */
+  .tool-spotlight {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 56px 48px;
+    margin: 48px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tool-spotlight::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle at top right, rgba(192,57,43,0.3), transparent 70%);
+  }
+
+  .tool-spotlight .ts-label {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent-gold);
+    margin-bottom: 16px;
+  }
+
+  .tool-spotlight h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 3.5vw, 36px);
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--cream);
+  }
+
+  .tool-spotlight p {
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 1.8;
+    color: #C0B0A0;
+    margin-bottom: 16px;
+  }
+
+  .benefit-list {
+    list-style: none;
+    margin-top: 24px;
+  }
+
+  .benefit-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    font-size: 15px;
+    font-weight: 300;
+    color: #C0B0A0;
+    line-height: 1.6;
+  }
+
+  .benefit-list li::before {
+    content: '→';
+    color: var(--red-light);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* ─── CTA ─── */
+  .cta-section {
+    background: var(--red-dark);
+    padding: 80px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-section::before {
+    content: 'ORACLE';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Playfair Display', serif;
+    font-size: 200px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.03);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .cta-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 900;
+    color: var(--cream);
+    max-width: 700px;
+    margin: 0 auto 24px;
+    line-height: 1.1;
+    position: relative;
+  }
+
+  .cta-section p {
+    font-size: 18px;
+    font-weight: 300;
+    color: rgba(250,247,242,0.7);
+    max-width: 500px;
+    margin: 0 auto 40px;
+    line-height: 1.7;
+    position: relative;
+  }
+
+  .cta-btn {
+    display: inline-block;
+    padding: 18px 48px;
+    background: var(--cream);
+    color: var(--red-dark);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    position: relative;
+    cursor: pointer;
+    border: none;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  .cta-btn:hover {
+    background: var(--accent-gold);
+    color: var(--ink);
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--ink);
+    padding: 32px 40px;
+    text-align: center;
+  }
+
+  footer p {
+    font-size: 12px;
+    color: #4A3B2C;
+    letter-spacing: 1px;
+  }
+
+  /* ─── SEPARATORS ─── */
+  .ornament {
+    text-align: center;
+    color: var(--border);
+    font-size: 20px;
+    letter-spacing: 8px;
+    margin: 48px 0;
+  }
+
+  .rule {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 48px 0;
+  }
+
+  /* ─── EXAMPLE BOX ─── */
+  .example-box {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent-gold);
+    padding: 36px 32px;
+    margin: 40px 0;
+  }
+
+  .ex-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent-gold);
+    margin-bottom: 16px;
+  }
+
+  .example-box p {
+    font-size: 15px;
+    margin-bottom: 16px;
+  }
+
+  .example-box p em {
+    font-style: italic;
+    color: var(--red);
+    font-weight: 400;
+  }
+
+  .ex-note {
+    font-size: 13px !important;
+    color: var(--stone) !important;
+    font-style: italic;
+    margin-top: 16px !important;
+  }
+
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 24px 0;
+  }
+
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    background: var(--cream);
+    padding: 16px 20px;
+    border-left: 2px solid var(--border);
+    transition: border-color 0.2s;
+  }
+
+  .flow-step:hover { border-color: var(--red); }
+
+  .fs-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--border);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 32px;
+  }
+
+  .fs-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #3D2E1E;
+  }
+
+  .fs-text strong { font-weight: 500; color: var(--ink); }
+
+  /* ─── CODE BLOCK ─── */
+  .code-block {
+    background: var(--ink);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 24px 0 20px;
+  }
+
+  .code-label {
+    background: var(--red-dark);
+    padding: 8px 18px;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(250,247,242,0.7);
+  }
+
+  .code-block pre {
+    padding: 24px 20px;
+    overflow-x: auto;
+  }
+
+  .code-block code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #98D4A3;
+  }
+
+  /* ─── USE CASES ─── */
+  .usecase-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2px;
+    background: var(--border);
+    margin: 36px 0;
+  }
+
+  .uc-card {
+    background: var(--warm-white);
+    padding: 28px 24px;
+    transition: background 0.3s;
+  }
+
+  .uc-card:hover { background: var(--ink); }
+  .uc-card:hover .uc-title,
+  .uc-card:hover .uc-body { color: var(--cream); }
+
+  .uc-icon { font-size: 24px; margin-bottom: 12px; }
+
+  .uc-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+    transition: color 0.3s;
+  }
+
+  .uc-body {
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--stone);
+    font-weight: 300;
+    transition: color 0.3s;
+  }
+
+  /* ─── WHAT I LEARNED ─── */
+  .learned-section { margin-top: 80px; }
+
+  .learned-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 2px;
+    background: var(--border);
+    margin: 40px 0;
+  }
+
+  .learned-card {
+    background: var(--cream);
+    padding: 36px 28px;
+    position: relative;
+    transition: background 0.3s;
+  }
+
+  .learned-card:hover { background: var(--ink); }
+
+  .lc-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--border);
+    line-height: 1;
+    margin-bottom: 12px;
+    transition: color 0.3s;
+  }
+
+  .learned-card:hover .lc-num { color: rgba(192,57,43,0.4); }
+
+  .lc-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 12px;
+    line-height: 1.3;
+    transition: color 0.3s;
+  }
+
+  .lc-body {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--stone);
+    font-weight: 300;
+    transition: color 0.3s;
+  }
+
+  .learned-card:hover .lc-title,
+  .learned-card:hover .lc-body { color: #C0B0A0; }
+
+  /* ─── FINAL THOUGHTS ─── */
+  .final-section { margin-bottom: 80px; }
+
+  /* ─── FOOTER AUTHOR ─── */
+  .footer-author {
+  padding: 40px;
+  background: rgba(255,255,255,0.02);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  text-align: center;
+}
+
+  .fa-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--cream);
+  margin-bottom: 10px;
+}
+
+  .fa-sub {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #B0A090;
+}
+
+  .footer-copy {
+    font-size: 12px;
+    color: #4A3B2C;
+    letter-spacing: 1px;
+    padding: 0 40px;
+  }
+  
+
+  .tagline-bar p {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Oracle AI Ecosystem · Enterprise Intelligence · ⏱ 6 min read</div>
+  <h1>Your Database<br>Just Got <em>Smarter.</em></h1>
+  <div class="hero-divider"></div>
+  <p class="hero-sub">A practical look at how Oracle's AI-native technologies are closing the gap between raw data and real-time intelligent decisions, and why that matters for enterprise systems.</p>
+  <div class="scroll-hint">Scroll</div>
+</section>
+
+<!-- TAGLINE -->
+<div class="tagline-bar">
+  <p>Oracle AI Database · OCI Generative AI · Vector Search · JSON Duality · Model Context Protocol</p>
+</div>
+
+<!-- INTRO STRIP -->
+<div class="intro-strip">
+  <p>"What if your database didn't just hold your data — but understood it, searched it semantically, and used it to make decisions in real time? That's not the future. That's Oracle today."</p>
+</div>
+
+<!-- ARTICLE -->
+<div class="article">
+  <div class="container">
+
+    <!-- SECTION 1 -->
+    <div class="section">
+      <div class="section-number">// 01 · The Problem</div>
+      <h2>Enterprises Are Drowning in Data.<br><span>And Starving for Intelligence.</span></h2>
+      <p>Modern organizations generate more data in a single day than previous generations processed in a decade. Yet despite this torrent of information, the most critical business decisions still get made on instinct, spreadsheets, and gut feel, because extracting meaningful intelligence from raw data has historically required an army of engineers, data scientists, and weeks of pipeline-building.</p>
+      <p>The traditional approach, store data here, analyze it over there, sprinkle AI somewhere in the middle, creates fragility. It creates latency. And most importantly, it creates a gap between what your data knows and what your business does. Oracle's unified AI platform collapses that gap entirely.</p>
+    </div>
+
+    <hr class="rule">
+
+    <!-- SECTION 2 — Oracle AI Database -->
+    <div class="section">
+      <div class="section-number">// 02 · Tool Spotlight</div>
+      <h2>Oracle AI Database:<br><span>Intelligence at the Core</span></h2>
+      <p>At the heart of Oracle's AI stack is something radical in its simplicity: a database that doesn't merely store data, it computes on it, reasons over it, and returns insights in a single query. Oracle AI Database is built on Oracle Database 23ai, bringing machine learning, vector operations, and generative AI capabilities directly into the engine where your data already lives.</p>
+      <p>Forget the old model of extracting data into a separate ML environment and hoping the results sync back in time to matter. With Oracle AI Database, your analytical and operational workloads converge in one place — eliminating data movement, reducing latency, and slashing infrastructure complexity by orders of magnitude.</p>
+
+      <div class="pull-quote">
+        <p>"Why move mountains of data to the AI when you can bring the AI directly to the mountain?"</p>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="fc-icon">⚡</div>
+          <div class="fc-title">In-Database ML</div>
+          <div class="fc-body">Train and score machine learning models without extracting a single row. Inference happens where the data lives.</div>
+        </div>
+        <div class="feature-card">
+          <div class="fc-icon">🧠</div>
+          <div class="fc-title">Native AI Functions</div>
+          <div class="fc-body">SQL-callable AI operations for classification, regression, clustering, and anomaly detection — no Python required.</div>
+        </div>
+        <div class="feature-card">
+          <div class="fc-icon">🔗</div>
+          <div class="fc-title">Unified Architecture</div>
+          <div class="fc-body">One system for OLTP, analytics, JSON, spatial, graph, and AI. No sprawling toolchain. No integration tax.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3 — OCI Generative AI -->
+    <div class="tool-spotlight">
+      <div class="ts-label">// 03 · Tool Spotlight</div>
+      <h3>OCI Generative AI:<br>Enterprise-Grade LLMs Without the Enterprise Headache</h3>
+      <p>Generative AI has become table stakes. But deploying it at enterprise scale — with the security, governance, and reliability that regulated industries demand — is where most platforms stumble. Oracle Cloud Infrastructure Generative AI is purpose-built for exactly this challenge.</p>
+      <p>OCI GenAI gives your teams access to state-of-the-art large language models — including Meta's Llama family and Cohere's Command models — through a fully managed service that integrates natively with Oracle's data and security infrastructure. Your prompts and data never leave your cloud tenancy. Your compliance team can finally sleep at night.</p>
+      <ul class="benefit-list">
+        <li>Hosted models run in dedicated GPU clusters within your OCI region — zero data leakage, full regulatory compliance</li>
+        <li>Native integration with Oracle Database means LLMs can query live data, not stale exports</li>
+        <li>Pay-as-you-go token pricing with enterprise SLAs — no six-figure annual commitments to get started</li>
+        <li>Supports retrieval-augmented generation (RAG), fine-tuning, and custom system prompts out of the box</li>
+        <li>Works seamlessly with OCI IAM, logging, and audit trails — AI operations that your CISO can actually approve</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 4 — Vector Search -->
+    <div class="section">
+      <div class="section-number">// 04 · Tool Spotlight</div>
+      <h2>Oracle Vector Search:<br><span>Semantic Search That Actually Works</span></h2>
+      <p>Traditional keyword search is precise but brittle. It finds the exact words you typed — nothing more, nothing less. In a world where context is everything, that's a fatal limitation. Oracle AI Vector Search changes the game entirely by enabling similarity-based retrieval that understands meaning, not just characters.</p>
+      <p>Every document, policy, product description, or customer interaction your organization has ever created can be transformed into a vector embedding — a rich numerical fingerprint of its semantic meaning. Store those embeddings alongside your relational data in Oracle Database, and you unlock the ability to ask questions like "find me all support tickets similar to this customer complaint" — and get results that are genuinely similar in meaning, not just keyword-matched.</p>
+
+      <div class="stat-row">
+        <div class="stat-cell">
+          <div class="stat-number">↑</div>
+          <div class="stat-label">Significantly faster than external vector pipelines</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-number">0</div>
+          <div class="stat-label">Extra infra to manage</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-number">1</div>
+          <div class="stat-label">Unified system for data + AI</div>
+        </div>
+      </div>
+
+      <p>What makes Oracle's implementation genuinely superior is the colocation advantage. When your vectors live in the same database as your relational data, you can execute hybrid queries that combine semantic similarity with structured filters — in a single SQL statement. No orchestration layer. No round-trips to a separate vector database. No synchronization headaches. Just answers.</p>
+
+      <div class="pull-quote">
+        <p>"Oracle Vector Search doesn't just find what you asked for. It finds what you meant."</p>
+      </div>
+    </div>
+
+    <!-- SECTION 5 — JSON Duality -->
+    <div class="tool-spotlight">
+      <div class="ts-label">// 05 · Tool Spotlight</div>
+      <h3>JSON Duality Views:<br>Relational Power. Document Flexibility. Choose Both.</h3>
+      <p>For decades, organizations have faced a frustrating false choice: adopt a relational database for consistency and ACID transactions, or adopt a document store for the flexibility and agility that modern applications demand. JSON Duality Views — a breakthrough feature in Oracle Database 23ai — obliterates this tradeoff entirely.</p>
+      <p>With JSON Duality Views, a single underlying relational dataset can be exposed simultaneously as normalized tables and as rich, nested JSON documents. Your backend developers query and update via document APIs. Your analytics team runs SQL joins. Your data remains consistent, with full relational guarantees — but the access pattern is whatever your application needs it to be.</p>
+      <ul class="benefit-list">
+        <li>ACID-compliant transactions on document operations — the safety of Oracle with the flexibility of MongoDB</li>
+        <li>No data duplication: one source of truth, multiple views — updates through either interface reflect everywhere</li>
+        <li>MongoDB-compatible API means existing document-oriented applications can plug directly into Oracle without code changes</li>
+        <li>Eliminate the operational overhead of running separate RDBMS and NoSQL systems side by side</li>
+        <li>Dramatically simplify your data architecture without sacrificing the performance characteristics of either paradigm</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 6 — MCP -->
+    <div class="section">
+      <div class="section-number">// 06 · Tool Spotlight</div>
+      <h2>Model Context Protocol:<br><span>Turning Your Database into an AI Brain</span></h2>
+      <p>The Model Context Protocol (MCP) represents a new paradigm for how AI agents interact with enterprise systems. Rather than relying on brittle, hardcoded API integrations between LLMs and databases, MCP allows AI models to directly discover and use database capabilities as tools — dynamically, at runtime, without custom wiring for every use case.</p>
+      <p>With MCP, your Oracle Database stops being a passive repository that AI queries on command. It becomes an active participant in AI workflows — exposing operations that LLMs can reason about and invoke autonomously. Your database becomes an extension of the model's context.</p>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="fc-icon">🤖</div>
+          <div class="fc-title">Agentic Workflows</div>
+          <div class="fc-body">AI agents can discover database tools at runtime and compose complex multi-step operations without human orchestration.</div>
+        </div>
+        <div class="feature-card">
+          <div class="fc-icon">🔧</div>
+          <div class="fc-title">Natural Language to SQL</div>
+          <div class="fc-body">Business users ask questions in plain English. MCP translates intent to optimized SQL and returns interpretable results.</div>
+        </div>
+        <div class="feature-card">
+          <div class="fc-icon">📡</div>
+          <div class="fc-title">Real-Time Execution</div>
+          <div class="fc-body">Live query execution with streaming results and persistent context — AI workflows that remember what they've done.</div>
+        </div>
+      </div>
+
+      <p>The business implication is profound. Organizations can now build AI-powered decision support systems where non-technical users interact through natural language while the underlying intelligence is grounded in live, accurate enterprise data — not a static training corpus frozen months ago.</p>
+    </div>
+
+    <hr class="rule">
+
+    <!-- SECTION 7 — RAG -->
+    <div class="section">
+      <div class="section-number">// 07 · The Architecture</div>
+      <h2>Retrieval-Augmented Generation:<br><span>When AI Knows Your Business</span></h2>
+      <p>Generative AI models are remarkably capable — but they are bounded by what they were trained on. They have no knowledge of your proprietary policies, your latest product catalog, your customer's unique history, or the regulatory changes that hit your industry last quarter. RAG fixes this by grounding every LLM response in retrieved, real-time context pulled from your own data.</p>
+      <p>Oracle's platform makes RAG implementation clean rather than complex. Vector Search retrieves the most semantically relevant chunks of your enterprise knowledge base. That retrieved context is assembled into a structured prompt. OCI Generative AI generates a response that is simultaneously fluent, factual, and specific to your business domain. The entire pipeline — retrieval, assembly, generation — executes within Oracle's infrastructure with enterprise-grade security baked in at every layer.</p>
+
+      <div class="pull-quote">
+        <p>"RAG transforms a general-purpose LLM into a domain expert that actually knows your business — not just the internet."</p>
+      </div>
+
+      <!-- REAL WORLD EXAMPLE -->
+      <div class="example-box">
+        <div class="ex-label">📌 Real-World Example · Customer Support AI</div>
+        <p>Imagine a customer support system handling thousands of tickets daily. A user submits: <em>"My invoice shows a charge I didn't authorize."</em></p>
+        <p>Here's how Oracle's RAG pipeline resolves it in milliseconds:</p>
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="fs-num">1</div>
+            <div class="fs-text"><strong>User query → Vector embedding.</strong> The question is converted into a vector using Oracle's in-database embedding model.</div>
+          </div>
+          <div class="flow-step">
+            <div class="fs-num">2</div>
+            <div class="fs-text"><strong>Vector Search retrieves similar tickets.</strong> Oracle finds the top semantically similar past cases — not just keyword matches.</div>
+          </div>
+          <div class="flow-step">
+            <div class="fs-num">3</div>
+            <div class="fs-text"><strong>Context is assembled.</strong> Retrieved tickets + company billing policy chunks are packaged into a structured prompt.</div>
+          </div>
+          <div class="flow-step">
+            <div class="fs-num">4</div>
+            <div class="fs-text"><strong>OCI GenAI generates a grounded response.</strong> The LLM answers based on real company data — not hallucinated policy.</div>
+          </div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-label">SQL · Vector Search Query</div>
+          <pre><code>SELECT ticket_id, issue_summary, resolution
+FROM support_tickets
+ORDER BY VECTOR_DISTANCE(
+  embedding,
+  :query_vector,
+  COSINE
+)
+FETCH FIRST 5 ROWS ONLY;</code></pre>
+        </div>
+        <p class="ex-note">This single SQL statement retrieves the five most semantically similar historical tickets — no external vector database, no ETL pipeline, no microservice hop.</p>
+      </div>
+
+      <p>The result: AI responses that are accurate, contextually-aware, and grounded in truth. Whether the use case is customer service, regulatory compliance, financial analysis, or operational decision support, Oracle's RAG architecture delivers answers that users can actually rely on.</p>
+    </div>
+
+    <!-- WHERE THIS CAN BE USED -->
+    <div class="section">
+      <div class="section-number">// 08 · Use Cases</div>
+      <h2>Where These Tools<br><span>Actually Get Deployed</span></h2>
+      <p>Oracle's AI stack isn't theoretical. These capabilities are being applied across industries today — wherever there is a need to turn large volumes of structured and unstructured data into fast, explainable decisions.</p>
+      <div class="usecase-grid">
+        <div class="uc-card">
+          <div class="uc-icon">💬</div>
+          <div class="uc-title">Customer Support AI</div>
+          <div class="uc-body">Retrieve similar past cases via vector search, generate responses grounded in your actual support history and policy documents.</div>
+        </div>
+        <div class="uc-card">
+          <div class="uc-icon">🔍</div>
+          <div class="uc-title">Fraud Detection</div>
+          <div class="uc-body">Run ML models in-database on live transaction streams. Score risk in real time without moving data to an external ML platform.</div>
+        </div>
+        <div class="uc-card">
+          <div class="uc-icon">🎯</div>
+          <div class="uc-title">Recommendation Engines</div>
+          <div class="uc-body">Semantic similarity across product catalogs or content libraries — recommendations based on meaning, not just purchase history.</div>
+        </div>
+        <div class="uc-card">
+          <div class="uc-icon">📚</div>
+          <div class="uc-title">Internal Knowledge Assistants</div>
+          <div class="uc-body">Employees ask natural language questions. The system retrieves relevant policy docs, procedures, and past decisions — instantly.</div>
+        </div>
+        <div class="uc-card">
+          <div class="uc-icon">⚡</div>
+          <div class="uc-title">Approval Workflows</div>
+          <div class="uc-body">Automate decision support for permit reviews, loan applications, or regulatory approvals using RAG + compliance data.</div>
+        </div>
+        <div class="uc-card">
+          <div class="uc-icon">📊</div>
+          <div class="uc-title">Analytics Copilots</div>
+          <div class="uc-body">Business users query databases in plain English via MCP-powered NL-to-SQL. No data analyst required for every question.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WHAT I LEARNED -->
+    <div class="section learned-section">
+      <div class="section-number">// 09 · Personal Takeaways</div>
+      <h2>What I Learned from<br><span>Exploring Oracle AI</span></h2>
+      <p>Having worked hands-on with this stack, a few things became clear that documentation alone doesn't convey. These are the insights I'd want any engineer or architect approaching this space to carry with them from the start.</p>
+
+      <div class="learned-grid">
+        <div class="learned-card">
+          <div class="lc-num">01</div>
+          <div class="lc-title">In-database AI genuinely reduces complexity</div>
+          <div class="lc-body">Keeping inference co-located with your data isn't just a performance optimization — it eliminates an entire category of engineering problems. No pipelines to maintain, no data drift between environments, no synchronization bugs. The architecture is simpler, and simpler architectures fail less.</div>
+        </div>
+        <div class="learned-card">
+          <div class="lc-num">02</div>
+          <div class="lc-title">Vector search is foundational, not optional</div>
+          <div class="lc-body">I used to think keyword search was "good enough" for most retrieval tasks. Working with Oracle Vector Search changed that view. The moment you need AI to understand context — not just match strings — vector search becomes the only viable path. It's the backbone of every meaningful GenAI application I've seen.</div>
+        </div>
+        <div class="learned-card">
+          <div class="lc-num">03</div>
+          <div class="lc-title">RAG is not a nice-to-have — it's what makes LLMs trustworthy</div>
+          <div class="lc-body">A raw LLM without retrieval is impressive in demos and unreliable in production. RAG is what closes that gap. Without it, you're asking a general-purpose model to make domain-specific decisions with no grounding. With it, responses become auditable, accurate, and actually useful in business contexts.</div>
+        </div>
+        <div class="learned-card">
+          <div class="lc-num">04</div>
+          <div class="lc-title">Enterprise AI is data + infrastructure + governance</div>
+          <div class="lc-body">The biggest misconception about enterprise AI is that it's primarily an LLM problem. It isn't. The hard part is data quality, access control, audit trails, and operational reliability. Oracle's strength is that it treats all of these as first-class concerns — not afterthoughts you bolt on later.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINAL THOUGHTS -->
+    <div class="section final-section">
+      <div class="section-number">// 10 · Final Thoughts</div>
+      <h2>Where Enterprise AI<br><span>Is Actually Headed</span></h2>
+      <p>We are at an inflection point. AI tools are no longer isolated experiments — they are becoming the operating layer of enterprise systems. The question is no longer "should we adopt AI?" but "how do we build AI systems that are reliable, secure, and grounded in our own data?"</p>
+      <p>Oracle's answer to that question is architecturally coherent in a way that most alternatives are not. Instead of assembling a constellation of point solutions — a vector database here, an LLM API there, an ML platform somewhere else — Oracle offers a unified foundation where all of these capabilities coexist, share the same security model, and operate on the same data without copying it around.</p>
+
+      <div class="pull-quote">
+        <p>"The future of enterprise AI isn't more tools. It's fewer, more capable systems that know your data as well as your engineers do."</p>
+      </div>
+
+      <p>The shift I expect to see accelerate is from AI as a feature to AI as an agent — systems that don't just answer questions but autonomously retrieve context, reason over data, and take actions. MCP is the early infrastructure for that future. Vector Search and RAG are the retrieval layer. OCI GenAI is the reasoning engine. And Oracle AI Database is the foundation holding it all together.</p>
+      <p>If you're building enterprise systems in the next few years, understanding this stack isn't optional — it's the vocabulary of what's coming.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2>Stop Managing Data.<br>Start Leveraging Intelligence.</h2>
+  <p>Oracle's AI-native platform gives your enterprise the tools to turn data into decisions — in one unified, governed stack.</p>
+  <a href="https://www.oracle.com/in/autonomous-database/" class="cta-btn" target="_blank" rel="noopener">Explore Oracle AI Database →</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-author">
+    <div class="fa-name">Written by Madhalasa SJ — exploring Oracle AI, Data Engineering &amp; Enterprise Systems</div>
+    <div class="fa-sub">Hands-on with Oracle AI Database · OCI Generative AI · Vector Search · JSON Duality · MCP</div>
+  </div>
+  <div class="footer-copy">© 2025 · Oracle AI Ecosystem · All capabilities described are available on Oracle Cloud Infrastructure</div>
+</footer>
+
+<script>
+  // Intersection Observer for scroll-reveal
+  const sections = document.querySelectorAll('.section');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  sections.forEach(s => observer.observe(s));
+
+  // Eager-load first section
+  setTimeout(() => {
+    sections[0] && sections[0].classList.add('visible');
+  }, 100);
+</script>
+</body>
+</html>
