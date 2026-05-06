@@ -715,17 +715,35 @@
     text-transform: uppercase;
     color: var(--ink);
   }
+
+  .hero-link {
+  position: absolute;
+  top: 30px;
+  left: 40px;
+  z-index: 2;
+  }
+
+.hero-link a {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(250,247,242,0.6);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.hero-link a:hover {
+  color: var(--accent-gold);
+}
+
 </style>
 </head>
 <body>
   
 <!-- HERO -->
 <section class="hero">
-  <!-- BLOG LINK -->
-  <div style="position:absolute; top:20px; left:40px;">
-    <a href="oracle-nosql.html" style="color:white; text-decoration:none; font-size:14px;">
-      ← Oracle NoSQL Blog
-    </a>
+  <div class="hero-link">
+    <a href="oracle-nosql.html">← Explore More Blogs</a>
   </div>
 
   <div class="hero-eyebrow">Oracle AI Ecosystem · Enterprise Intelligence · ⏱ 6 min read</div>
