@@ -408,12 +408,37 @@
       .hero { padding: 3rem 1.5rem 2.5rem; }
       .page-wrap { padding: 0 1.5rem; }
     }
+
+.hero-link {
+  position: absolute;
+  top: 30px;
+  left: 40px;
+  z-index: 2;
+}
+
+.hero-link a {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(250,247,242,0.6);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.hero-link a:hover {
+  color: var(--accent-gold);
+}
+    
   </style>
 </head>
 <body>
 
 <!-- HERO -->
 <section class="hero">
+  <div class="hero-link">
+    <a href="index.html">← Back to AI Blog</a>
+  </div>
+  
   <div class="page-wrap">
     <p class="hero-meta">Oracle NoSQL &nbsp;·&nbsp; Cloud Databases &nbsp;·&nbsp; Developer Insights</p>
     <h1>Never Compromise on Speed <em>or</em> Scale Again</h1>
