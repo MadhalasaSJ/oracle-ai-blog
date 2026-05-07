@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detecting Suspicious Financial Activity Using Oracle Spatial and Python</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --ink-muted: #5a5a5a;
+    --ink-faint: #9a9a9a;
+    --surface: #fafaf8;
+    --surface-alt: #f2f0eb;
+    --accent: #1a3a5c;
+    --accent-green: #1a6b45;
+    --accent-amber: #9c6a00;
+    --border: #e0ddd6;
+    --code-bg: #f5f3ef;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--surface);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 17px;
+    line-height: 1.8;
+    font-weight: 400;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--accent);
+    color: #e8eef5;
+    padding: 72px 0 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -80px;
+    width: 480px; height: 480px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -60px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 32px;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(200,220,240,0.6);
+    margin-bottom: 18px;
+  }
+  .hero-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(34px, 5vw, 52px);
+    line-height: 1.1;
+    color: #e8f0f8;
+    margin-bottom: 20px;
+    max-width: 680px;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: #8ab8e0;
+  }
+  .hero-subtitle {
+    font-size: 16px;
+    line-height: 1.7;
+    color: rgba(210,228,245,0.72);
+    max-width: 540px;
+    margin-bottom: 32px;
+  }
+  .author-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .author-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(138,184,224,0.2);
+    border: 1px solid rgba(138,184,224,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: #8ab8e0;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .author-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .author-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #d8ecff;
+  }
+  .author-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: rgba(180,210,235,0.5);
+    letter-spacing: 0.04em;
+  }
+  .hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 4px 11px;
+    border-radius: 2px;
+    border: 1px solid rgba(255,255,255,0.13);
+    color: rgba(200,220,240,0.75);
+    background: rgba(255,255,255,0.04);
+    letter-spacing: 0.05em;
+  }
+
+  /* ARTICLE */
+  article { padding: 60px 0 80px; }
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.25;
+    color: var(--accent);
+    margin-top: 56px;
+    margin-bottom: 16px;
+  }
+  h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-top: 36px;
+    margin-bottom: 12px;
+  }
+  p { margin-bottom: 20px; color: #2c2c2c; line-height: 1.8; }
+  p:last-child { margin-bottom: 0; }
+  strong { font-weight: 600; color: var(--ink); }
+  em { font-style: italic; }
+  .lead {
+    font-size: 19px;
+    line-height: 1.7;
+    color: #333;
+    border-left: 3px solid var(--accent);
+    padding-left: 22px;
+    margin-bottom: 36px;
+    font-weight: 300;
+  }
+  .section-rule {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 48px 0;
+  }
+
+  /* ARCH DIAGRAM */
+  .arch-diagram {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 28px;
+    margin: 32px 0;
+  }
+  .arch-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+    margin-bottom: 10px;
+  }
+  .arch-node {
+    flex: 1;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 14px 15px;
+  }
+  .arch-node-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 4px;
+  }
+  .arch-node-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }
+  .arch-node-desc { font-size: 12px; color: var(--ink-muted); line-height: 1.55; }
+  .arch-node.ab { border-top: 3px solid #2563eb; }
+  .arch-node.ar { border-top: 3px solid #dc2626; }
+  .arch-node.ag { border-top: 3px solid #16a34a; }
+  .arch-node.aa { border-top: 3px solid #d97706; }
+  .arch-node.ap { border-top: 3px solid #7c3aed; }
+  .arch-arrow { text-align: center; color: var(--ink-faint); font-size: 16px; padding: 4px 0 6px; }
+
+  /* CODE */
+  .code-block {
+    background: #1b1f2e;
+    border-radius: 4px;
+    padding: 24px 28px;
+    margin: 24px 0;
+    overflow-x: auto;
+  }
+  .code-block-header {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #616d8a;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .code-block pre {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    line-height: 1.75;
+    color: #c5cde0;
+    white-space: pre;
+  }
+  .kw { color: #7eb8f7; }
+  .fn { color: #a8d5b5; }
+  .st { color: #f0ad79; }
+  .cm { color: #4e5c78; font-style: italic; }
+  .nu { color: #f9c784; }
+
+  /* CALLOUTS */
+  .callout {
+    background: white;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+    padding: 20px 24px;
+    margin: 24px 0;
+  }
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 7px;
+  }
+  .callout p { font-size: 15px; color: #3a3a3a; margin: 0; line-height: 1.65; }
+  .callout.warning { border-left-color: var(--accent-amber); }
+  .callout.warning .callout-label { color: var(--accent-amber); }
+  .callout.success { border-left-color: var(--accent-green); }
+  .callout.success .callout-label { color: var(--accent-green); }
+
+  /* PIPELINE STEPS */
+  .pipeline { margin: 28px 0; }
+  .pipeline-step { display: flex; gap: 18px; padding: 18px 0; border-bottom: 1px solid var(--border); }
+  .pipeline-step:last-child { border-bottom: none; }
+  .step-number {
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    margin-top: 2px;
+  }
+  .step-content h4 { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }
+  .step-content p { font-size: 14px; color: var(--ink-muted); margin: 0; }
+
+  /* TECH GRID */
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+    gap: 10px;
+    margin: 24px 0;
+  }
+  .tech-card { background: white; border: 1px solid var(--border); border-radius: 3px; padding: 13px 15px; }
+  .tech-card-category {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    margin-bottom: 3px;
+  }
+  .tech-card-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+
+  /* SPATIAL HIGHLIGHT */
+  .spatial-highlight {
+    background: #0f2744;
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin: 32px 0;
+  }
+  .spatial-highlight h3 {
+    color: #8ab8e0;
+    font-family: 'IBM Plex Mono', monospace;
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+  }
+  .spatial-highlight p { color: #b0ccdf; font-size: 15px; margin-bottom: 10px; }
+  .spatial-highlight ul { list-style: none; margin: 12px 0 0; padding: 0; }
+  .spatial-highlight ul li {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: #9abdd8;
+    padding: 7px 0 7px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    line-height: 1.55;
+  }
+  .spatial-highlight ul li::before { content: '>'; position: absolute; left: 0; color: #4a7a9a; }
+  .spatial-highlight ul li:last-child { border-bottom: none; }
+
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 2px;
+    color: #1a3a5c;
+  }
+
+  /* MAP */
+  .map-section { margin: 36px 0; }
+  .map-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .map-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .map-subtitle { font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
+  .map-legend { display: flex; gap: 16px; flex-shrink: 0; }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--ink-muted);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  #fraud-map {
+    width: 100%;
+    height: 420px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #e8eef5;
+  }
+  .map-caption { font-size: 12px; color: var(--ink-faint); margin-top: 10px; font-style: italic; }
+  .map-controls { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .map-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: white;
+    color: var(--ink-muted);
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: all 0.15s;
+  }
+  .map-btn:hover { background: var(--surface-alt); color: var(--ink); }
+  .map-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* FOOTER */
+  footer { background: var(--accent); color: rgba(200,220,240,0.65); padding: 36px 0; font-size: 14px; }
+  footer .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  footer strong { color: #e8f0f8; font-weight: 500; }
+  .footer-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .footer-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 2px;
+    color: rgba(200,220,240,0.55);
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <p class="hero-eyebrow">Geospatial Analytics &nbsp;&middot;&nbsp; Machine Learning &nbsp;&middot;&nbsp; Oracle Cloud</p>
+    <h1 class="hero-title">Detecting <em>Suspicious</em><br>Financial Activity<br>with Oracle Spatial<br>and Python</h1>
+    <p class="hero-subtitle">A deep dive into building a spatiotemporal fraud detection pipeline using Oracle Autonomous Database, Oracle Spatial, ST-DBSCAN clustering, and Folium visualizations.</p>
+
+    <div class="author-row">
+      <div class="author-avatar">MS</div>
+      <div class="author-info">
+        <span class="author-name"><strong>Madhalasa SJ</strong></span>
+        <span class="author-meta">Oracle Cloud &nbsp;&middot;&nbsp; Geospatial Analytics &nbsp;&middot;&nbsp; May 2026</span>
+      </div>
+    </div>
+
+    <div class="hero-tags">
+      <span class="tag">Oracle Autonomous Database</span>
+      <span class="tag">Oracle Spatial</span>
+      <span class="tag">ST-DBSCAN</span>
+      <span class="tag">GeoPandas</span>
+      <span class="tag">Folium</span>
+      <span class="tag">Python</span>
+    </div>
+  </div>
+</header>
+
+<article>
+  <div class="container">
+
+    <p class="lead">Fraud rarely announces itself as a single bad transaction. It shows up as a pattern across geography and time, hidden inside what looks like perfectly normal activity. Traditional rule engines cannot see that pattern. This pipeline can.</p>
+
+    <p>I have been thinking for a while about what it would take to build a fraud detection system that genuinely goes beyond thresholds and blacklists. The problem with rule-based approaches is that they evaluate each transaction in isolation. They do not ask: where was this customer an hour ago? Are they typically in this region at all? Does this transaction fit the behavioral footprint they have established over the past month?</p>
+
+    <p>To answer those kinds of questions, you need to treat transactions as <strong>spatiotemporal events</strong>, not just dollar amounts. That is the core idea behind what I built here: a pipeline that clusters customer transaction behavior across both space and time, then identifies transactions that fall outside those clusters in a statistically meaningful way.</p>
+
+    <hr class="section-rule">
+
+    <h2>How the System is Put Together</h2>
+
+    <p>The whole thing runs on Oracle Cloud Infrastructure, with a clean split between what happens inside the database and what happens in Python. Oracle handles the heavy geospatial SQL. Python handles the clustering algorithm. Folium handles the maps. Each layer does exactly what it is best at.</p>
+
+    <div class="arch-diagram">
+      <div class="arch-row">
+        <div class="arch-node ab">
+          <div class="arch-node-label">Cloud Database</div>
+          <div class="arch-node-title">Oracle Autonomous Database</div>
+          <div class="arch-node-desc">Transaction storage, spatial geometry processing, SDO_DISTANCE calculations, centroid aggregation, spatial indexing and high-performance SQL</div>
+        </div>
+        <div class="arch-node ar">
+          <div class="arch-node-label">Compute Runtime</div>
+          <div class="arch-node-title">Oracle Compute Instance</div>
+          <div class="arch-node-desc">Jupyter environment, Python clustering workflows, geospatial library execution, Oracle Database connectivity via python-oracledb</div>
+        </div>
+      </div>
+      <div class="arch-arrow">&#8595;</div>
+      <div class="arch-row">
+        <div class="arch-node ag">
+          <div class="arch-node-label">ML Clustering</div>
+          <div class="arch-node-title">ST-DBSCAN</div>
+          <div class="arch-node-desc">Evaluates spatial proximity (eps1) and temporal proximity (eps2) simultaneously to identify behavioral clusters</div>
+        </div>
+        <div class="arch-node aa">
+          <div class="arch-node-label">Spatial SQL</div>
+          <div class="arch-node-title">Oracle Spatial Operations</div>
+          <div class="arch-node-desc">SDO_AGGR_CENTROID, SDO_WITHIN_DISTANCE, sdo_geom.sdo_distance run directly at the data layer</div>
+        </div>
+        <div class="arch-node ap">
+          <div class="arch-node-label">Visualization</div>
+          <div class="arch-node-title">Folium + GeoPandas</div>
+          <div class="arch-node-desc">Interactive maps showing normal clusters in blue and detected anomalies in red, with hover tooltips per transaction</div>
+        </div>
+      </div>
+    </div>
+
+    <p>One thing I was deliberate about: keeping the geospatial operations inside Oracle rather than pulling raw coordinates into Python and doing the geometry work there. When you have a spatial index in place and run <code>SDO_WITHIN_DISTANCE</code> inside the database, you get the full benefit of that index. Pull the data out first and you lose that entirely. At scale, that difference is significant.</p>
+
+    <hr class="section-rule">
+
+    <h2>Getting the Data Ready</h2>
+
+    <p>The data model is two tables. <code>locations</code> holds longitude and latitude for each transaction site. <code>transactions</code> records each event linked to a location and a customer. Simple enough, but enough to represent real financial behavior patterns across geography and time.</p>
+
+    <h3>Projecting coordinates into meters</h3>
+
+    <p>Raw longitude and latitude coordinates are not usable for distance math in the Python libraries I needed. Everything has to be in meters. So the first step was a database function that converts coordinates into Web Mercator (EPSG:3857), giving x and y values in meters.</p>
+
+    <div class="code-block">
+      <div class="code-block-header">Oracle SQL — lonlat_to_proj_geom function</div>
+      <pre><span class="kw">CREATE OR REPLACE FUNCTION</span> <span class="fn">lonlat_to_proj_geom</span> (
+    longitude <span class="kw">IN</span> NUMBER, latitude <span class="kw">IN</span> NUMBER)
+<span class="kw">RETURN</span> SDO_GEOMETRY DETERMINISTIC IS
+<span class="kw">BEGIN</span>
+  <span class="kw">IF</span> latitude IS NULL OR longitude IS NULL
+  <span class="kw">THEN</span> RETURN NULL;
+  <span class="kw">ELSE</span>
+    <span class="kw">RETURN</span> <span class="fn">sdo_cs.transform</span>(
+      <span class="fn">SDO_GEOMETRY</span>(<span class="nu">2001</span>, <span class="nu">4326</span>,
+                   <span class="fn">sdo_point_type</span>(longitude, latitude, NULL),
+                   NULL, NULL),
+      <span class="nu">3857</span>);  <span class="cm">-- Web Mercator: x/y in meters</span>
+  <span class="kw">END IF</span>;
+<span class="kw">END</span>;</pre>
+    </div>
+
+    <p>Rather than adding a new spatial column to the table (expensive for large schemas), I used Oracle's function-based spatial index pattern. You create an index on the function itself. The database then treats calls to that function exactly like a normal indexed column. All spatial operations benefit from the index automatically, with zero schema overhead.</p>
+
+    <h3>Converting dates to epoch integers</h3>
+
+    <p>ST-DBSCAN works on numerical arrays. Oracle DATE types do not feed into numpy cleanly, so I added an epoch column to convert transaction dates into Unix timestamps, that is, seconds since January 1, 1970.</p>
+
+    <div class="code-block">
+      <div class="code-block-header">Oracle SQL — adding epoch time</div>
+      <pre><span class="kw">ALTER TABLE</span> transactions <span class="kw">ADD</span> (trans_epoch_date integer);
+
+<span class="kw">UPDATE</span> transactions
+<span class="kw">SET</span> trans_epoch_date = (trans_date - <span class="fn">date</span><span class="st">'1970-01-01'</span>) * <span class="nu">86400</span>;</pre>
+    </div>
+
+    <hr class="section-rule">
+
+    <h2>The Clustering Logic: ST-DBSCAN</h2>
+
+    <p>This is where the machine learning piece lives. I used <strong>ST-DBSCAN</strong>, a spatiotemporal extension of the density-based DBSCAN algorithm. The key difference from standard DBSCAN is that it clusters points based on two proximity conditions at the same time: they have to be close in space <em>and</em> close in time. A transaction in New York and a transaction in London might be geographically distant but occur in the same month, and ST-DBSCAN handles that correctly.</p>
+
+    <div class="callout">
+      <div class="callout-label">Why not standard DBSCAN?</div>
+      <p>Standard DBSCAN would cluster all of a customer's New York transactions together regardless of when they happened. A customer active in New York from January to March, then again from September to November, might have two separate behavioral periods. ST-DBSCAN separates them because it also enforces a time window, giving you much more precise behavioral clusters to work with.</p>
+    </div>
+
+    <p>Three parameters define how the clustering behaves:</p>
+
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>eps1: 5,000 meters spatial radius</h4>
+          <p>Transactions within 5 km of each other count as geographically co-located. This covers a typical city or suburban zone without merging genuinely separate areas.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>eps2: 3,000,000 seconds (roughly 35 days)</h4>
+          <p>Transactions within about a month of each other are treated as temporally adjacent. This captures regular monthly patterns while still isolating one-off events that fall outside a cluster's active window.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h4>min_samples: 5 transactions</h4>
+          <p>A neighborhood needs at least 5 transactions to qualify as a legitimate cluster. Anything below that gets labeled -1 (noise), which makes it a candidate for anomaly investigation downstream.</p>
+        </div>
+      </div>
+    </div>
+
+    <p>The Python code pulls each customer's transactions from Oracle, reshapes them into a numpy array with columns for time, x (meters), and y (meters), then runs ST-DBSCAN.</p>
+
+    <div class="code-block">
+      <div class="code-block-header">Python — ST-DBSCAN clustering per customer</div>
+      <pre><span class="cm"># Pull transaction geometries projected into meters</span>
+cursor.execute(<span class="st">"""
+    SELECT a.cust_id, a.trans_id, a.trans_epoch_date,
+           (lonlat_to_proj_geom(b.lon,b.lat)).get_wkt()
+    FROM transactions a, locations b
+    WHERE a.location_id=b.location_id
+    AND cust_id=:cust"""</span>, cust=cust)
+
+gdf = gpd.GeoDataFrame(cursor.fetchall(),
+    columns=[<span class="st">'cust_id'</span>, <span class="st">'trans_id'</span>, <span class="st">'epoch_date'</span>, <span class="st">'geometry'</span>])
+gdf[<span class="st">'geometry'</span>] = shapely.from_wkt(gdf[<span class="st">'geometry'</span>])
+
+<span class="cm"># Reshape into [time, x_meters, y_meters] numpy array</span>
+df = pd.DataFrame({
+    <span class="st">'time'</span>: gdf.epoch_date,
+    <span class="st">'x'</span>: gdf.geometry.x,
+    <span class="st">'y'</span>: gdf.geometry.y,
+    <span class="st">'trans_id'</span>: gdf.trans_id
+})
+data = np.int_(df.values)
+
+<span class="cm"># label >= 0 is a cluster ID; label == -1 is noise</span>
+st_cluster = <span class="fn">ST_DBSCAN</span>(eps1=<span class="nu">5000</span>, eps2=<span class="nu">3000000</span>, min_samples=<span class="nu">5</span>)
+st_cluster.fit(data)</pre>
+    </div>
+
+    <p>Once clustering is done, the labels go back into Oracle in a <code>transaction_labels</code> table. That join is what lets the anomaly detection SQL reference cluster membership as part of the geospatial analysis.</p>
+
+    <hr class="section-rule">
+
+    <h2>Finding the Anomalies with Spatial SQL</h2>
+
+    <p>After clustering, I needed to find transactions that were labeled as noise (label = -1) but fell within the active time window of an established cluster, and were more than 500 km away from that cluster's geographic centroid. Those are the suspicious ones.</p>
+
+    <div class="spatial-highlight">
+      <h3>// ORACLE SPATIAL FUNCTIONS USED</h3>
+      <p>Three spatial operations drive the anomaly logic:</p>
+      <ul>
+        <li><strong>SDO_AGGR_CENTROID</strong> computes the geographic center of each transaction cluster, representing the customer's behavioral home zone for that time period</li>
+        <li><strong>SDO_WITHIN_DISTANCE</strong> efficiently filters out noise transactions that fall within 500 km of a cluster centroid, since those are not suspicious</li>
+        <li><strong>sdo_geom.sdo_distance</strong> calculates the exact distance in kilometers between each flagged transaction and the relevant cluster centroid</li>
+      </ul>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">Oracle SQL — anomaly detection query</div>
+      <pre><span class="kw">WITH</span>
+  x <span class="kw">AS</span> (
+      <span class="kw">SELECT</span> a.cust_id, a.trans_id, a.trans_epoch_date,
+             <span class="fn">lonlat_to_proj_geom</span>(b.lon, b.lat) <span class="kw">AS</span> proj_geom, c.label
+      <span class="kw">FROM</span> transactions a, locations b, transaction_labels c
+      <span class="kw">WHERE</span> a.location_id = b.location_id
+      <span class="kw">AND</span>   a.trans_id = c.trans_id),
+  y <span class="kw">AS</span> (
+      <span class="kw">SELECT</span> label,
+             <span class="fn">min</span>(trans_epoch_date) <span class="kw">AS</span> min_time,
+             <span class="fn">max</span>(trans_epoch_date) <span class="kw">AS</span> max_time,
+             <span class="fn">SDO_AGGR_CENTROID</span>(
+               <span class="fn">SDOAGGRTYPE</span>(<span class="fn">lonlat_to_proj_geom</span>(b.lon, b.lat), <span class="nu">0.005</span>)
+             ) <span class="kw">AS</span> proj_geom
+      <span class="kw">FROM</span> transactions a, locations b, transaction_labels c
+      <span class="kw">WHERE</span> a.location_id = b.location_id
+      <span class="kw">AND</span>   a.trans_id = c.trans_id
+      <span class="kw">AND</span>   c.label != <span class="nu">-1</span>
+      <span class="kw">GROUP BY</span> label)
+<span class="kw">SELECT</span> x.cust_id, x.trans_epoch_date,
+       (x.proj_geom).get_wkt(), x.trans_id,
+       <span class="fn">round</span>(<span class="fn">sdo_geom.sdo_distance</span>(x.proj_geom, y.proj_geom,
+                                   <span class="nu">0.05</span>, <span class="st">'unit=KM'</span>))
+<span class="kw">FROM</span> x, y
+<span class="kw">WHERE</span> x.trans_epoch_date <span class="kw">BETWEEN</span> y.min_time <span class="kw">AND</span> y.max_time
+<span class="kw">AND</span>   x.label != y.label
+<span class="kw">AND</span>   x.label = <span class="nu">-1</span>
+<span class="kw">AND</span>   <span class="fn">sdo_within_distance</span>(x.proj_geom, y.proj_geom,
+        <span class="st">'distance=500 unit=KM'</span>) = <span class="st">'FALSE'</span></pre>
+    </div>
+
+    <p>What I like about this query is the combination of conditions. It is not just "this transaction is far from the usual area." It also has to fall within the active time window of a cluster. So if a customer normally transacts in Boston during March and there is a transaction in Tokyo also in March, that gets flagged. The time dimension matters as much as the distance.</p>
+
+    <div class="callout success">
+      <div class="callout-label">What this catches that rules miss</div>
+      <p>A customer whose behavioral cluster sits around Chicago suddenly has a transaction in Miami during the same week. A rule engine sees a normal transaction. This system sees a noise-labeled point 2,200 km from an active cluster centroid, occurring within that cluster's time window. It gets flagged immediately, with the exact distance recorded.</p>
+    </div>
+
+    <hr class="section-rule">
+
+    <h2>Seeing the Results on a Map</h2>
+
+    <p>Once anomalies are identified, the final step is making them visible. The map below shows what the output looks like across multiple customers. <strong>Blue circles</strong> are normal transaction clusters representing where each customer typically operates. <strong>Red circles</strong> are the detected anomalies: transactions that fall outside established behavioral patterns during an active cluster period. Click any marker to see details, or filter by customer using the buttons.</p>
+
+    <div class="map-section">
+      <div class="map-header">
+        <div>
+          <div class="map-title">Spatiotemporal Anomaly Detection Output</div>
+          <div class="map-subtitle">Simulated transaction clusters and detected fraud anomalies across customers</div>
+        </div>
+        <div class="map-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#2563eb;"></div>Normal cluster</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#dc2626;"></div>Anomaly</div>
+        </div>
+      </div>
+      <div class="map-controls">
+        <button class="map-btn active" onclick="showAll(this)">All customers</button>
+        <button class="map-btn" onclick="filterCustomer(1, this)">Customer 1</button>
+        <button class="map-btn" onclick="filterCustomer(2, this)">Customer 2</button>
+        <button class="map-btn" onclick="filterCustomer(3, this)">Customer 3</button>
+      </div>
+      <div id="fraud-map"></div>
+      <p class="map-caption">Blue circles represent geographic centroids of established behavioral clusters. Red circles are transactions flagged as anomalous: they occurred within a cluster's active time window but more than 500 km from its centroid.</p>
+    </div>
+
+    <p>In the actual pipeline, this map is generated from live GeoDataFrame results via Folium's <code>explore()</code> method, which produces an interactive HTML map embedded directly in the Jupyter notebook. GeoPandas handles all the geometry conversion from the Oracle WKT output, so the code for it stays concise.</p>
+
+    <div class="code-block">
+      <div class="code-block-header">Python — Folium map rendering</div>
+      <pre><span class="cm"># gdf holds cluster centroids, gdfAnomaly holds suspicious transactions</span>
+m = gdf.explore(
+    tiles=<span class="st">"CartoDB positron"</span>,
+    marker_type=<span class="st">'circle_marker'</span>,
+    marker_kwds={<span class="st">"radius"</span>: <span class="st">"5"</span>},
+    style_kwds={<span class="st">"color"</span>: <span class="st">"blue"</span>, <span class="st">"fillColor"</span>: <span class="st">"blue"</span>,
+                <span class="st">"fillOpacity"</span>: <span class="st">"1"</span>})
+
+m = gdfAnomaly.explore(
+    m=m,
+    marker_type=<span class="st">'circle_marker'</span>,
+    marker_kwds={<span class="st">"radius"</span>: <span class="st">"5"</span>},
+    style_kwds={<span class="st">"color"</span>: <span class="st">"red"</span>, <span class="st">"fillColor"</span>: <span class="st">"red"</span>,
+                <span class="st">"fillOpacity"</span>: <span class="st">"1"</span>})
+
+m.fit_bounds(m.get_bounds())
+<span class="kw">return</span> m</pre>
+    </div>
+
+    <hr class="section-rule">
+
+    <h2>Full Technology Stack</h2>
+
+    <p>Every tool in this stack has a reason to be there. Nothing is redundant.</p>
+
+    <div class="tech-grid">
+      <div class="tech-card">
+        <div class="tech-card-category">Cloud Database</div>
+        <div class="tech-card-name">Oracle Autonomous DB</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-category">Spatial Engine</div>
+        <div class="tech-card-name">Oracle Spatial</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-category">Compute</div>
+        <div class="tech-card-name">Oracle Compute Instance</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-category">DB Connectivity</div>
+        <div class="tech-card-name">python-oracledb</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-category">Spatial DataFrames</div>
+        <div class="tech-card-name">GeoPandas</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-category">Geometry Types</div>
+        <div class="tech-card-name">Shapely</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-category">ML Clustering</div>
+        <div class="tech-card-name">ST-DBSCAN</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-category">Numeric Arrays</div>
+        <div class="tech-card-name">NumPy / Pandas</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-category">Map Visualization</div>
+        <div class="tech-card-name">Folium</div>
+      </div>
+    </div>
+
+    <hr class="section-rule">
+
+    <h2>Closing Thoughts</h2>
+
+    <p>What surprised me most while building this was how much analytical leverage you get from combining spatial SQL with clustering, compared to either approach on its own. Oracle Spatial by itself can tell you that a transaction is far from a reference point. ST-DBSCAN by itself can tell you that a transaction is outside a behavioral cluster. But together, they let you ask a much sharper question: is this transaction outside a cluster that was specifically active at this time, and is it far enough away that no reasonable explanation covers the distance?</p>
+
+    <div class="callout warning">
+      <div class="callout-label">Key design decision worth keeping in mind</div>
+      <p>Doing spatial aggregation and distance filtering inside Oracle means the spatial index is always working for you. If you pull geometries into Python first and compute distances in GeoPandas, you skip the index entirely. For small datasets that probably does not matter. For anything at production scale, it absolutely does.</p>
+    </div>
+
+    <p>The pipeline handles multiple customers cleanly, with per-customer clustering running through three simple function calls: <code>get_cluster_centroids(cust)</code>, <code>get_anomalies(cust)</code>, and <code>get_map()</code>. Scaling it further would mean parallelizing the clustering loop across customers. But the core architecture, Oracle handling the geospatial SQL and Python handling the clustering math, would stay exactly the same.</p>
+
+    <p>If you are working on fraud detection, anomaly detection in mobility data, or any problem where behavior unfolds across both space and time, the spatiotemporal framing is worth exploring. Static rules will always have blind spots. Behavioral clustering grounded in real geographic context makes those blind spots much smaller.</p>
+
+  </div>
+</article>
+
+<footer>
+  <div class="container">
+    <div>
+      <strong>Madhalasa SJ</strong><br>
+      Oracle Autonomous Database &nbsp;&middot;&nbsp; Oracle Spatial &nbsp;&middot;&nbsp; Python &nbsp;&middot;&nbsp; ST-DBSCAN
+    </div>
+    <div class="footer-tags">
+      <span class="footer-tag">Geospatial Analytics</span>
+      <span class="footer-tag">Anomaly Detection</span>
+      <span class="footer-tag">Oracle Cloud</span>
+      <span class="footer-tag">Python ML</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const clusterData = [
+  { cust: 1, lat: 37.77,  lng: -122.42, type: 'cluster', city: 'San Francisco',   count: 14, period: 'Jan - Mar 2024' },
+  { cust: 1, lat: 37.33,  lng: -121.89, type: 'cluster', city: 'San Jose',         count: 9,  period: 'Apr - Jun 2024' },
+  { cust: 1, lat: 40.71,  lng: -74.01,  type: 'anomaly', city: 'New York',         dist: 4120, period: 'Feb 2024' },
+  { cust: 2, lat: 41.88,  lng: -87.63,  type: 'cluster', city: 'Chicago',          count: 18, period: 'Jan - Apr 2024' },
+  { cust: 2, lat: 41.60,  lng: -87.30,  type: 'cluster', city: 'South Chicago',    count: 7,  period: 'May - Jul 2024' },
+  { cust: 2, lat: 25.77,  lng: -80.19,  type: 'anomaly', city: 'Miami',            dist: 2220, period: 'Mar 2024' },
+  { cust: 2, lat: 51.51,  lng:  -0.13,  type: 'anomaly', city: 'London',           dist: 6890, period: 'Jun 2024' },
+  { cust: 3, lat: 29.76,  lng: -95.37,  type: 'cluster', city: 'Houston',          count: 22, period: 'Feb - May 2024' },
+  { cust: 3, lat: 35.68,  lng: 139.69,  type: 'anomaly', city: 'Tokyo',            dist: 11250, period: 'Apr 2024' },
+  { cust: 3, lat: 48.86,  lng:   2.35,  type: 'anomaly', city: 'Paris',            dist: 9110, period: 'Mar 2024' }
+];
+
+let map, activeMarkers = [];
+
+function buildPopup(d) {
+  if (d.type === 'cluster') {
+    return '<div style="font-family: IBM Plex Mono, monospace; font-size: 12px; line-height: 1.7; min-width: 180px;">'
+      + '<div style="font-weight:600; font-size: 13px; margin-bottom: 4px;">Behavioral cluster</div>'
+      + '<div>Customer &nbsp;&nbsp;: ' + d.cust + '</div>'
+      + '<div>Location &nbsp;&nbsp;: ' + d.city + '</div>'
+      + '<div>Transactions: ' + d.count + '</div>'
+      + '<div>Period &nbsp;&nbsp;&nbsp;&nbsp;: ' + d.period + '</div>'
+      + '</div>';
+  } else {
+    return '<div style="font-family: IBM Plex Mono, monospace; font-size: 12px; line-height: 1.7; min-width: 180px;">'
+      + '<div style="font-weight: 600; font-size: 13px; color: #dc2626; margin-bottom: 4px;">Anomaly flagged</div>'
+      + '<div>Customer &nbsp;&nbsp;: ' + d.cust + '</div>'
+      + '<div>Location &nbsp;&nbsp;: ' + d.city + '</div>'
+      + '<div>Distance &nbsp;&nbsp;: ' + d.dist.toLocaleString() + ' km from cluster</div>'
+      + '<div>During &nbsp;&nbsp;&nbsp;&nbsp;: ' + d.period + '</div>'
+      + '</div>';
+  }
+}
+
+function clearMarkers() {
+  activeMarkers.forEach(m => map.removeLayer(m));
+  activeMarkers = [];
+}
+
+function renderMarkers(data) {
+  clearMarkers();
+  data.forEach(d => {
+    const isAnomaly = d.type === 'anomaly';
+    const color = isAnomaly ? '#dc2626' : '#2563eb';
+    const m = L.circleMarker([d.lat, d.lng], {
+      radius: isAnomaly ? 8 : 9,
+      fillColor: color,
+      color: color,
+      weight: isAnomaly ? 2 : 1.5,
+      opacity: 1,
+      fillOpacity: isAnomaly ? 0.92 : 0.5
+    }).bindPopup(buildPopup(d), { maxWidth: 260 });
+    m.addTo(map);
+    activeMarkers.push(m);
+  });
+}
+
+function showAll(btn) {
+  setActive(btn);
+  renderMarkers(clusterData);
+  map.setView([25, -20], 2);
+}
+
+function filterCustomer(n, btn) {
+  setActive(btn);
+  const filtered = clusterData.filter(d => d.cust === n);
+  renderMarkers(filtered);
+  if (filtered.length) {
+    const lats = filtered.map(d => d.lat);
+    const lngs = filtered.map(d => d.lng);
+    map.fitBounds([
+      [Math.min(...lats) - 6, Math.min(...lngs) - 12],
+      [Math.max(...lats) + 6, Math.max(...lngs) + 12]
+    ]);
+  }
+}
+
+function setActive(btn) {
+  document.querySelectorAll('.map-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
+window.addEventListener('load', function() {
+  map = L.map('fraud-map', { zoomControl: true }).setView([25, -20], 2);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; CartoDB',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(map);
+  renderMarkers(clusterData);
+});
+</script>
+
+</body>
+</html>
