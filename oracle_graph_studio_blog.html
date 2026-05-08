@@ -824,8 +824,9 @@
   transition: color 0.2s ease;
 }
 
-.blog-nav a:hover{
-  color: #C74634;
+.blog-nav a:hover,
+.blog-nav a.active{
+  color:#C74634;
 }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
@@ -836,7 +837,7 @@
     <a href="oci_gen_ai.html">Oracle AI</a>
     <a href="oracle-nosql.html">Oracle NoSQL</a>
     <a href="spatiotemporal-fraud-detection-blog.html">Fraud Detection</a>
-    <a href="oracle_graph_studio_blog.html">Graph Studio</a>
+    <a href="oracle_graph_studio_blog.html" class="active">Graph Studio</a>
   </nav>
 
 <!-- HEADER -->
