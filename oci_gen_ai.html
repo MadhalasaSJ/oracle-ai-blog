@@ -708,32 +708,27 @@
   }
   
 
-  .tagline-bar p {
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--ink);
-  }
-
-  .hero-link {
-  position: absolute;
-  top: 30px;
-  left: 40px;
-  z-index: 2;
-  }
-
-.hero-link a {
-  font-size: 11px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: rgba(250,247,242,0.6);
-  text-decoration: none;
-  transition: color 0.3s ease;
+.blog-nav {
+  background: #111827;
+  padding: 14px 32px;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
-.hero-link a:hover {
-  color: var(--accent-gold);
+.blog-nav a {
+  color: rgba(255,255,255,0.75);
+  text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  transition: color 0.2s ease;
+}
+
+.blog-nav a:hover,
+.blog-nav a.active {
+  color: #C74634;
 }
 
 </style>
@@ -742,9 +737,13 @@
   
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-link">
-    <a href="oracle-nosql.html">← Explore More Blogs</a>
-  </div>
+  <nav class="blog-nav">
+    <a href="index.html">Home</a>
+    <a href="oci_gen_ai.html">Oracle AI</a>
+    <a href="oracle-nosql.html">Oracle NoSQL</a>
+    <a href="spatiotemporal-fraud-detection-blog.html">Fraud Detection</a>
+    <a href="oracle_graph_studio_blog.html" class="active">Graph Studio</a>
+  </nav>
 
   <div class="hero-eyebrow">Oracle AI Ecosystem · Enterprise Intelligence · ⏱ 6 min read</div>
   <h1>Your Database<br>Just Got <em>Smarter.</em></h1>
