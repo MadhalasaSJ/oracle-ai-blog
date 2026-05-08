@@ -726,8 +726,9 @@
   transition: color 0.2s ease;
 }
 
-.blog-nav a:hover{
-  color: #C74634;
+.blog-nav a:hover,
+.blog-nav a.active{
+  color:#C74634;
 }
 
 </style>
@@ -735,7 +736,7 @@
 <body>
     <nav class="blog-nav">
     <a href="index.html">Home</a>
-    <a href="oci_gen_ai.html">Oracle AI</a>
+    <a href="oci_gen_ai.html" class="active">Oracle AI</a>
     <a href="oracle-nosql.html">Oracle NoSQL</a>
     <a href="spatiotemporal-fraud-detection-blog.html">Fraud Detection</a>
     <a href="oracle_graph_studio_blog.html">Graph Studio</a>
