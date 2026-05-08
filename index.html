@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Madhalasa SJ | Oracle ACE Apprentice Portfolio</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+
+:root {
+  --bg: #f8f5ef;
+  --paper: #ffffff;
+  --text: #18181b;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --oracle-red: #C74634;
+  --oracle-dark: #111827;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.7;
+}
+
+/* NAVIGATION */
+
+.blog-nav{
+  background:var(--oracle-dark);
+  padding:16px 40px;
+  display:flex;
+  gap:24px;
+  flex-wrap:wrap;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.blog-nav a{
+  color:rgba(255,255,255,0.72);
+  text-decoration:none;
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;
+  transition:0.2s ease;
+}
+
+.blog-nav a:hover,
+.blog-nav a.active{
+  color:var(--oracle-red);
+}
+
+/* HERO */
+
+.hero{
+  background:linear-gradient(135deg,#111827 0%,#1f2937 100%);
+  color:white;
+  padding:90px 32px 90px;
+  position:relative;
+  overflow:hidden;
+}
+
+.hero::before{
+  content:'';
+  position:absolute;
+  width:500px;
+  height:500px;
+  top:-120px;
+  right:-120px;
+  background:radial-gradient(circle, rgba(199,70,52,0.15) 0%, transparent 70%);
+}
+
+.hero-inner{
+  max-width:1150px;
+  margin:0 auto;
+  position:relative;
+  z-index:2;
+}
+
+.hero-tag{
+  display:inline-block;
+  background:rgba(199,70,52,0.14);
+  border:1px solid rgba(199,70,52,0.3);
+  color:#ffb4aa;
+  padding:6px 14px;
+  border-radius:999px;
+  font-size:12px;
+  font-family:'JetBrains Mono',monospace;
+  letter-spacing:1px;
+  margin-bottom:28px;
+}
+
+.hero h1{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(3.5rem,7vw,6rem);
+  line-height:1;
+  margin-bottom:22px;
+}
+
+.hero-subtitle{
+  font-size:1.1rem;
+  color:rgba(255,255,255,0.78);
+  margin-bottom:22px;
+  font-weight:500;
+}
+
+.hero p{
+  max-width:820px;
+  color:rgba(255,255,255,0.72);
+  font-size:1.08rem;
+}
+
+.hero-links{
+  display:flex;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-top:34px;
+}
+
+.hero-links a{
+  text-decoration:none;
+  color:white;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.1);
+  padding:12px 18px;
+  border-radius:10px;
+  font-size:14px;
+  transition:0.2s ease;
+}
+
+.hero-links a:hover{
+  background:rgba(199,70,52,0.18);
+  border-color:rgba(199,70,52,0.3);
+}
+
+/* SECTION */
+
+.section{
+  max-width:1150px;
+  margin:0 auto;
+  padding:80px 32px;
+}
+
+.section-header{
+  margin-bottom:42px;
+}
+
+.section-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  color:var(--oracle-red);
+  letter-spacing:2px;
+  margin-bottom:10px;
+  text-transform:uppercase;
+}
+
+.section-title{
+  font-family:'Playfair Display',serif;
+  font-size:2.5rem;
+  line-height:1.15;
+}
+
+.section-desc{
+  color:var(--muted);
+  margin-top:14px;
+  max-width:760px;
+}
+
+/* BLOG GRID */
+
+.blog-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:28px;
+}
+
+.blog-card{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:18px;
+  overflow:hidden;
+  transition:0.25s ease;
+  display:flex;
+  flex-direction:column;
+}
+
+.blog-card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 18px 40px rgba(0,0,0,0.08);
+}
+
+.blog-banner{
+  height:190px;
+  background:linear-gradient(135deg,#111827 0%,#1f2937 100%);
+  position:relative;
+  overflow:hidden;
+}
+
+.blog-banner::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at top right, rgba(199,70,52,0.35), transparent 40%),
+    radial-gradient(circle at bottom left, rgba(255,255,255,0.08), transparent 40%);
+}
+
+.banner-label{
+  position:absolute;
+  top:18px;
+  left:18px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.12);
+  color:rgba(255,255,255,0.75);
+  font-size:11px;
+  padding:6px 10px;
+  border-radius:999px;
+  font-family:'JetBrains Mono',monospace;
+}
+
+.banner-title{
+  position:absolute;
+  left:24px;
+  bottom:24px;
+  right:24px;
+  color:white;
+  font-family:'Playfair Display',serif;
+  font-size:1.5rem;
+  line-height:1.25;
+}
+
+.blog-content{
+  padding:28px;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+.blog-content p{
+  color:var(--muted);
+  margin-bottom:28px;
+  flex:1;
+}
+
+.blog-link{
+  text-decoration:none;
+  color:var(--oracle-red);
+  font-weight:600;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+
+.blog-link:hover{
+  opacity:0.8;
+}
+
+/* SKILLS */
+
+.skills{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:26px;
+}
+
+.skill{
+  background:white;
+  border:1px solid var(--border);
+  padding:10px 14px;
+  border-radius:999px;
+  font-size:14px;
+}
+
+/* FOOTER */
+
+footer{
+  background:var(--oracle-dark);
+  padding:60px 32px;
+  text-align:center;
+}
+
+.footer-title{
+  color:white;
+  font-family:'Playfair Display',serif;
+  font-size:2rem;
+  margin-bottom:12px;
+}
+
+.footer-title span{
+  color:var(--oracle-red);
+}
+
+.footer-text{
+  color:rgba(255,255,255,0.62);
+  max-width:700px;
+  margin:0 auto 28px;
+}
+
+.footer-links{
+  display:flex;
+  justify-content:center;
+  gap:18px;
+  flex-wrap:wrap;
+}
+
+.footer-links a{
+  color:rgba(255,255,255,0.72);
+  text-decoration:none;
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;
+}
+
+.footer-links a:hover{
+  color:var(--oracle-red);
+}
+
+@media(max-width:768px){
+
+  .hero{
+    padding-top:70px;
+  }
+
+  .hero h1{
+    font-size:3.5rem;
+  }
+
+  .section-title{
+    font-size:2rem;
+  }
+
+  .blog-nav{
+    padding:14px 20px;
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<nav class="blog-nav">
+  <a href="index.html" class="active">Home</a>
+  <a href="oci_gen_ai.html">Oracle AI</a>
+  <a href="oracle-nosql.html">Oracle NoSQL</a>
+  <a href="spatiotemporal-fraud-detection-blog.html">Fraud Detection</a>
+  <a href="oracle_graph_studio_blog.html">Graph Studio</a>
+</nav>
+
+<section class="hero">
+
+  <div class="hero-inner">
+
+    <div class="hero-tag">
+      Oracle ACE Apprentice
+    </div>
+
+    <h1>
+      Madhalasa SJ
+    </h1>
+
+    <p class="hero-subtitle">
+      Technical Blogger • Oracle Technologies • Cloud • Database Security • AI • Data Engineering
+    </p>
+
+    <p>
+      Oracle ACE Apprentice passionate about exploring Oracle technologies through technical blogging, hands-on implementations, and real-world engineering use cases. This portfolio showcases my work across Oracle Autonomous Database, Oracle Cloud Infrastructure (OCI), Oracle Graph Studio, Oracle Spatial, Oracle NoSQL, database security, enterprise AI systems, and modern data engineering concepts.
+    </p>
+
+    <div class="hero-links">
+
+      <a href="https://ace.oracle.com/ords/ace/oapt/profile/changeme3907" target="_blank">
+        Oracle ACE Profile
+      </a>
+
+      <a href="https://github.com/" target="_blank">
+        GitHub
+      </a>
+
+      <a href="https://linkedin.com/" target="_blank">
+        LinkedIn
+      </a>
+
+    </div>
+
+  </div>
+
+</section>
+
+<section class="section">
+
+  <div class="section-header">
+
+    <div class="section-label">
+      Technical Publications
+    </div>
+
+    <h2 class="section-title">
+      Featured Blogs & Engineering Explorations
+    </h2>
+
+    <p class="section-desc">
+      A collection of technical blogs focused on Oracle technologies, AI systems, cloud infrastructure, graph analytics, fraud detection, database security, and enterprise data engineering.
+    </p>
+
+  </div>
+
+  <div class="blog-grid">
+
+    <!-- BLOG 1 -->
+
+    <div class="blog-card">
+
+      <div class="blog-banner">
+        <div class="banner-label">Oracle AI</div>
+
+        <div class="banner-title">
+          Building Intelligent Systems with Oracle AI
+        </div>
+      </div>
+
+      <div class="blog-content">
+
+        <p>
+          Exploring Oracle AI tools, vector search, RAG systems, enterprise AI architecture, and intelligent Oracle workflows.
+        </p>
+
+        <a class="blog-link" href="oci_gen_ai.html">
+          Read Article →
+        </a>
+
+      </div>
+
+    </div>
+
+    <!-- BLOG 2 -->
+
+    <div class="blog-card">
+
+      <div class="blog-banner">
+        <div class="banner-label">Oracle NoSQL</div>
+
+        <div class="banner-title">
+          Scalable Cloud Applications with Oracle NoSQL
+        </div>
+      </div>
+
+      <div class="blog-content">
+
+        <p>
+          Understanding distributed database architecture and scalable Oracle NoSQL systems for cloud-native applications.
+        </p>
+
+        <a class="blog-link" href="oracle-nosql.html">
+          Read Article →
+        </a>
+
+      </div>
+
+    </div>
+
+    <!-- BLOG 3 -->
+
+    <div class="blog-card">
+
+      <div class="blog-banner">
+        <div class="banner-label">Fraud Detection</div>
+
+        <div class="banner-title">
+          Spatiotemporal Fraud Detection Pipeline
+        </div>
+      </div>
+
+      <div class="blog-content">
+
+        <p>
+          Building fraud detection workflows using Oracle Spatial, graph intelligence, geospatial analytics, and temporal data patterns.
+        </p>
+
+        <a class="blog-link" href="spatiotemporal-fraud-detection-blog.html">
+          Read Article →
+        </a>
+
+      </div>
+
+    </div>
+
+    <!-- BLOG 4 -->
+
+    <div class="blog-card">
+
+      <div class="blog-banner">
+        <div class="banner-label">Oracle Graph Studio</div>
+
+        <div class="banner-title">
+          Circular Payment Chain Detection
+        </div>
+      </div>
+
+      <div class="blog-content">
+
+        <p>
+          Detecting suspicious transaction cycles using PGQL, Oracle PGX, graph visualization, and graph machine learning.
+        </p>
+
+        <a class="blog-link" href="oracle_graph_studio_blog.html">
+          Read Article →
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<section class="section">
+
+  <div class="section-header">
+
+    <div class="section-label">
+      Technologies & Domains
+    </div>
+
+    <h2 class="section-title">
+      Oracle Technology Stack
+    </h2>
+
+  </div>
+
+  <div class="skills">
+
+    <div class="skill">Oracle Autonomous Database</div>
+    <div class="skill">Oracle Cloud Infrastructure</div>
+    <div class="skill">Oracle Graph Studio</div>
+    <div class="skill">Oracle Spatial</div>
+    <div class="skill">Oracle NoSQL</div>
+    <div class="skill">PGQL</div>
+    <div class="skill">Oracle PGX</div>
+    <div class="skill">Database Security</div>
+    <div class="skill">Fraud Detection</div>
+    <div class="skill">AI Systems</div>
+    <div class="skill">Data Engineering</div>
+    <div class="skill">Machine Learning</div>
+    <div class="skill">Python</div>
+    <div class="skill">SQL</div>
+
+  </div>
+
+</section>
+
+<footer>
+
+  <div class="footer-title">
+    Madhalasa <span>SJ</span>
+  </div>
+
+  <p class="footer-text">
+    Oracle ACE Apprentice exploring Oracle technologies through technical writing, real-world implementations, and engineering-focused learning.
+  </p>
+
+  <div class="footer-links">
+
+    <a href="https://github.com/MadhalasaSJ" target="_blank">
+      GitHub
+    </a>
+
+    <a href="www.linkedin.com/in/madhalasa-s-j" target="_blank">
+      LinkedIn
+    </a>
+
+    <a href="https://ace.oracle.com/ords/ace/oapt/profile/changeme3907" target="_blank">
+      Oracle ACE Profile
+    </a>
+
+  </div>
+
+</footer>
+
+</body>
+</html>
