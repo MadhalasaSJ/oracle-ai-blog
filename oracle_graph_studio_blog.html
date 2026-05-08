@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uncovering Fraud with Oracle Graph Studio | Madhalasa SJ</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1410;
+    --paper: #faf7f2;
+    --accent: #c0392b;
+    --accent2: #e67e22;
+    --muted: #7a6e64;
+    --border: #e0d8cc;
+    --code-bg: #1e1b18;
+    --highlight: #fff3cd;
+    --oracle-red: #C74634;
+    --oracle-dark: #1A1A2E;
+    --card-bg: #ffffff;
+    --section-bg: #f5f0e8;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---- HEADER ---- */
+  header {
+    background: var(--oracle-dark);
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 60% at 20% 50%, rgba(199,70,52,0.25) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 80% at 80% 20%, rgba(230,126,34,0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* Graph node animation in header */
+  .header-graph {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 45%;
+    opacity: 0.12;
+    overflow: hidden;
+  }
+
+  .header-graph svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .header-content {
+    position: relative;
+    z-index: 2;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 80px 48px 72px;
+  }
+
+  .blog-tag {
+    display: inline-block;
+    background: var(--oracle-red);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 2px;
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 900;
+    line-height: 1.12;
+    color: #ffffff;
+    margin-bottom: 28px;
+    letter-spacing: -0.5px;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent2);
+  }
+
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .author-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .author-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--oracle-red), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .author-name {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 15px;
+  }
+  .author-name strong {
+    color: #ffffff;
+  }
+
+  .meta-divider { color: rgba(255,255,255,0.3); }
+
+  .meta-text {
+    color: rgba(255,255,255,0.55);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ---- HERO VISUAL BAND ---- */
+  .hero-band {
+    background: var(--oracle-red);
+    padding: 18px 48px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    overflow-x: auto;
+  }
+
+  .hero-stat {
+    white-space: nowrap;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .hero-stat strong {
+    font-size: 22px;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+  }
+
+  .hero-sep { color: rgba(255,255,255,0.35); font-size: 20px; }
+
+  /* ---- MAIN LAYOUT ---- */
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ---- ARTICLE BODY ---- */
+  article {
+    padding: 72px 0 80px;
+  }
+
+  .lead {
+    font-size: 1.25rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--muted);
+    border-left: 4px solid var(--oracle-red);
+    padding-left: 24px;
+    margin-bottom: 52px;
+    line-height: 1.75;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 64px 0 20px;
+    line-height: 1.2;
+    position: relative;
+    padding-bottom: 14px;
+  }
+
+  h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 48px; height: 3px;
+    background: var(--oracle-red);
+    border-radius: 2px;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 40px 0 14px;
+  }
+
+  p { margin-bottom: 22px; }
+
+  strong { font-weight: 600; color: #111; }
+
+  /* ---- CODE BLOCKS ---- */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 28px 32px;
+    margin: 32px 0;
+    position: relative;
+    overflow-x: auto;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .code-block .code-label {
+    position: absolute;
+    top: 12px; right: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .code-block pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: #e8dfd0;
+    white-space: pre;
+  }
+
+  .kw { color: #f92672; }
+  .str { color: #e6db74; }
+  .cmt { color: #75715e; font-style: italic; }
+  .fn { color: #66d9ef; }
+  .var { color: #a6e22e; }
+  .num { color: #ae81ff; }
+  .op { color: #f8f8f2; }
+
+  /* ---- CONCEPT CARDS ---- */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    margin: 36px 0;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px 22px;
+    position: relative;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .card:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,0.10);
+    transform: translateY(-2px);
+  }
+
+  .card-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+
+  .card p {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* ---- PULL QUOTE ---- */
+  .pull-quote {
+    background: var(--section-bg);
+    border-radius: 10px;
+    padding: 40px 48px;
+    margin: 52px 0;
+    text-align: center;
+    position: relative;
+  }
+
+  .pull-quote::before {
+    content: '"';
+    font-family: 'Playfair Display', serif;
+    font-size: 120px;
+    font-weight: 900;
+    color: var(--oracle-red);
+    opacity: 0.15;
+    position: absolute;
+    top: -20px;
+    left: 24px;
+    line-height: 1;
+  }
+
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1.55;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---- FINDINGS BOX ---- */
+  .findings-box {
+    border: 2px solid var(--oracle-red);
+    border-radius: 10px;
+    padding: 32px 36px;
+    margin: 40px 0;
+    position: relative;
+  }
+
+  .findings-label {
+    position: absolute;
+    top: -14px; left: 24px;
+    background: var(--paper);
+    padding: 0 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--oracle-red);
+    font-weight: 500;
+  }
+
+  .finding-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .finding-row:last-child { margin-bottom: 0; }
+
+  .finding-bullet {
+    width: 28px;
+    height: 28px;
+    background: var(--oracle-red);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .finding-text {
+    font-size: 16px;
+    color: var(--ink);
+    line-height: 1.7;
+  }
+
+  /* ---- FLOW DIAGRAM ---- */
+  .flow-wrapper {
+    background: var(--oracle-dark);
+    border-radius: 12px;
+    padding: 36px 32px;
+    margin: 40px 0;
+    overflow-x: auto;
+  }
+
+  .flow-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  .flow-steps {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    min-width: 620px;
+  }
+
+  .flow-step {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 20px 14px;
+    text-align: center;
+    position: relative;
+  }
+
+  .flow-step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--oracle-red);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .flow-step-name {
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+    font-weight: 600;
+    line-height: 1.3;
+    font-family: 'Source Serif 4', serif;
+  }
+
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    color: var(--oracle-red);
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  /* ---- TABLE ---- */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 32px 0;
+    font-size: 15px;
+  }
+
+  .data-table thead tr {
+    background: var(--oracle-dark);
+    color: #fff;
+  }
+
+  .data-table thead th {
+    padding: 14px 18px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .data-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  .data-table tbody tr:hover { background: var(--section-bg); }
+
+  .data-table td {
+    padding: 13px 18px;
+    color: var(--ink);
+    vertical-align: top;
+  }
+
+  .data-table td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--oracle-red);
+    font-weight: 500;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .badge-red { background: #fdecea; color: #c0392b; }
+  .badge-green { background: #e8f5e9; color: #2e7d32; }
+  .badge-orange { background: #fff3e0; color: #e65100; }
+
+  /* ---- INFO CALLOUT ---- */
+  .callout {
+    display: flex;
+    gap: 18px;
+    background: var(--highlight);
+    border-left: 4px solid var(--accent2);
+    border-radius: 0 8px 8px 0;
+    padding: 22px 24px;
+    margin: 36px 0;
+    align-items: flex-start;
+  }
+
+  .callout-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+
+  .callout-body { font-size: 15.5px; color: #4a3a00; line-height: 1.7; }
+
+  .callout-body strong { color: #2a1f00; }
+
+  /* ---- ALGORITHM SHOWCASE ---- */
+  .algo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 36px 0;
+  }
+
+  @media (max-width: 600px) {
+    .algo-grid { grid-template-columns: 1fr; }
+    .card-grid { grid-template-columns: 1fr; }
+  }
+
+  .algo-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 26px 24px;
+    background: var(--card-bg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .algo-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--oracle-red);
+  }
+
+  .algo-card.secondary::before { background: var(--accent2); }
+  .algo-card.tertiary::before { background: #27ae60; }
+  .algo-card.quaternary::before { background: #2980b9; }
+
+  .algo-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--oracle-red);
+    margin-bottom: 8px;
+  }
+
+  .algo-card.secondary .algo-name { color: var(--accent2); }
+  .algo-card.tertiary .algo-name { color: #27ae60; }
+  .algo-card.quaternary .algo-name { color: #2980b9; }
+
+  .algo-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+
+  .algo-desc {
+    font-size: 14.5px;
+    color: var(--muted);
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  /* ---- RESULT TERMINAL ---- */
+  .terminal {
+    background: #0d1117;
+    border-radius: 10px;
+    padding: 6px 0 0;
+    margin: 28px 0;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .terminal-bar {
+    background: #21262d;
+    padding: 10px 16px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-r { background: #ff5f56; }
+  .dot-y { background: #ffbd2e; }
+  .dot-g { background: #27c93f; }
+
+  .terminal-label {
+    margin-left: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 1px;
+  }
+
+  .terminal-body {
+    padding: 22px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #c9d1d9;
+  }
+
+  .t-prompt { color: #3fb950; }
+  .t-output { color: #8b949e; }
+  .t-highlight { color: #ffa657; font-weight: 500; }
+  .t-success { color: #3fb950; }
+
+  /* ---- FOOTER ---- */
+  footer {
+    background: var(--oracle-dark);
+    color: rgba(255,255,255,0.6);
+    padding: 48px;
+    text-align: center;
+  }
+
+  .footer-inner { max-width: 600px; margin: 0 auto; }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 14px;
+    letter-spacing: -0.5px;
+  }
+
+  .footer-logo span { color: var(--oracle-red); }
+
+  .footer-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin: 24px 0;
+  }
+
+  .tag {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.55);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    letter-spacing: 0.5px;
+  }
+
+  .footer-copy {
+    font-size: 13px;
+    color: rgba(255,255,255,0.3);
+    margin-top: 28px;
+  }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0;
+  }
+
+  /* inline code */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.83em;
+    background: rgba(199,70,52,0.1);
+    color: var(--oracle-red);
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+
+  /* animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .header-content { animation: fadeUp 0.7s ease both; }
+  .hero-band { animation: fadeUp 0.7s 0.15s ease both; }
+
+  /* graph nodes background animation */
+  @keyframes pulse {
+    0%, 100% { opacity: 0.08; }
+    50% { opacity: 0.18; }
+  }
+
+  .node-anim { animation: pulse 3s ease-in-out infinite; }
+
+  /* ---- SECTION INTRO ---- */
+  .section-intro {
+    background: var(--section-bg);
+    border-radius: 10px;
+    padding: 32px 36px;
+    margin-bottom: 48px;
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  .inline-highlight {
+    background: linear-gradient(180deg, transparent 60%, rgba(199,70,52,0.2) 60%);
+    font-weight: 600;
+    color: var(--ink);
+    padding: 0 2px;
+  }
+
+  /* account badge */
+  .acct {
+    display: inline-block;
+    background: var(--oracle-dark);
+    color: #ffa657;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  /* ---- GRAPH VISUALIZATIONS ---- */
+  .graph-viz-container {
+    background: #0f0f1a;
+    border: 1px solid #2a2a3e;
+    border-radius: 10px;
+    margin: 36px 0;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  }
+  .graph-viz-header {
+    background: #1a1a2e;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #2a2a3e;
+  }
+  .graph-viz-header .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .graph-viz-header .dot-r { background: #ff5f57; }
+  .graph-viz-header .dot-y { background: #febc2e; }
+  .graph-viz-header .dot-g { background: #28c840; }
+  .graph-viz-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-left: 6px;
+  }
+  .graph-viz-body {
+    padding: 0;
+    position: relative;
+  }
+  .graph-viz-body svg {
+    display: block;
+    width: 100%;
+  }
+  .graph-viz-caption {
+    padding: 10px 18px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    border-top: 1px solid #2a2a3e;
+    letter-spacing: 0.5px;
+  }
+  .node-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    fill: #ffffff;
+    pointer-events: none;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+  .edge-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    fill: rgba(255,255,255,0.4);
+    pointer-events: none;
+    text-anchor: middle;
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-graph">
+    <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+      <g class="node-anim">
+        <!-- Edges -->
+        <line x1="250" y1="250" x2="120" y2="150" stroke="white" stroke-width="1.2"/>
+        <line x1="250" y1="250" x2="380" y2="140" stroke="white" stroke-width="1.2"/>
+        <line x1="250" y1="250" x2="400" y2="300" stroke="white" stroke-width="1.2"/>
+        <line x1="250" y1="250" x2="200" y2="400" stroke="white" stroke-width="1.2"/>
+        <line x1="120" y1="150" x2="380" y2="140" stroke="white" stroke-width="0.7"/>
+        <line x1="380" y1="140" x2="400" y2="300" stroke="white" stroke-width="0.7"/>
+        <line x1="400" y1="300" x2="200" y2="400" stroke="white" stroke-width="0.7"/>
+        <line x1="200" y1="400" x2="120" y2="150" stroke="white" stroke-width="0.7"/>
+        <line x1="120" y1="150" x2="60" y2="280" stroke="white" stroke-width="0.5"/>
+        <line x1="60" y1="280" x2="200" y2="400" stroke="white" stroke-width="0.5"/>
+        <line x1="380" y1="140" x2="460" y2="200" stroke="white" stroke-width="0.5"/>
+        <line x1="460" y1="200" x2="400" y2="300" stroke="white" stroke-width="0.5"/>
+        <!-- Nodes -->
+        <circle cx="250" cy="250" r="18" fill="white" opacity="0.9"/>
+        <circle cx="120" cy="150" r="12" fill="white" opacity="0.7"/>
+        <circle cx="380" cy="140" r="10" fill="white" opacity="0.6"/>
+        <circle cx="400" cy="300" r="13" fill="white" opacity="0.7"/>
+        <circle cx="200" cy="400" r="11" fill="white" opacity="0.65"/>
+        <circle cx="60" cy="280" r="8" fill="white" opacity="0.5"/>
+        <circle cx="460" cy="200" r="9" fill="white" opacity="0.5"/>
+        <circle cx="320" cy="380" r="7" fill="white" opacity="0.4"/>
+        <line x1="400" y1="300" x2="320" y2="380" stroke="white" stroke-width="0.5"/>
+        <line x1="200" y1="400" x2="320" y2="380" stroke="white" stroke-width="0.5"/>
+      </g>
+    </svg>
+  </div>
+  <div class="header-content">
+    <div class="blog-tag">Graph Analytics &nbsp;·&nbsp; Oracle Cloud</div>
+    <h1>Uncovering Fraud with <em>Oracle Graph Studio</em> and Autonomous AI Database</h1>
+    <div class="header-meta">
+      <div class="author-chip">
+        <div class="author-avatar">M</div>
+        <span class="author-name"><strong>Madhalasa SJ</strong></span>
+      </div>
+      <span class="meta-divider">|</span>
+      <span class="meta-text">May 2026</span>
+      <span class="meta-divider">|</span>
+      <span class="meta-text">12 min read</span>
+    </div>
+  </div>
+</header>
+
+<!-- HERO BAND -->
+<div class="hero-band">
+  <div class="hero-stat"><strong>1000+</strong> Accounts Analyzed</div>
+  <span class="hero-sep">·</span>
+  <div class="hero-stat"><strong>PGQL</strong> Graph Queries</div>
+  <span class="hero-sep">·</span>
+  <div class="hero-stat"><strong>PageRank</strong> + DeepWalk</div>
+  <span class="hero-sep">·</span>
+  <div class="hero-stat"><strong>Circular</strong> Chain Detection</div>
+  <span class="hero-sep">·</span>
+  <div class="hero-stat"><strong>Oracle PGX</strong> In-Memory Analytics</div>
+</div>
+
+<!-- ARTICLE -->
+<div class="container">
+<article>
+
+  <p class="lead">
+    Financial fraud hides in relationships, not just in rows and columns. This is the story of how I used Oracle Graph Studio inside Oracle Autonomous AI Database to model a banking transaction network as a property graph, hunt down circular payment chains, and expose suspicious accounts using graph machine learning.
+  </p>
+
+  <h2>Why Graph Analytics Changes Everything</h2>
+
+  <p>Traditional relational databases are exceptional at what they were designed for: fast lookups, aggregations, and transactional integrity. But detecting fraud in a financial network demands something fundamentally different. It demands the ability to ask questions like: <em>Does money flow from account A back to itself through a chain of accounts?</em> In SQL, answering that requires recursive common table expressions that grow exponentially in complexity with each additional hop.</p>
+
+  <p>Graph databases flip that challenge on its head. In a property graph, <strong>accounts become nodes</strong> and <strong>money transfers become directed edges</strong>. A circular payment chain is then just a path in that graph that starts and ends at the same node. What would take pages of SQL becomes a few elegant lines of PGQL.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <span class="card-icon">🔵</span>
+      <h4>Nodes (Vertices)</h4>
+      <p>Each bank account is represented as a node. Properties like account ID and balance are attached directly to the node.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">➡️</span>
+      <h4>Edges (Relationships)</h4>
+      <p>Every fund transfer is a directed edge. The direction carries meaning: who sent money to whom.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">🏷️</span>
+      <h4>Properties</h4>
+      <p>Both nodes and edges carry attributes: transaction amounts, timestamps, risk scores, and computed metrics like PageRank.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">🔄</span>
+      <h4>Circular Chains</h4>
+      <p>A cycle in the graph where funds eventually return to the origin account, a hallmark of money laundering and layering schemes.</p>
+    </div>
+  </div>
+
+  <h2>Oracle Graph Studio: The Environment</h2>
+
+  <p>Oracle Graph Studio is a first-class citizen inside Oracle Autonomous AI Database. It is not a bolt-on tool or an external service; it is natively integrated into the database, which means graph models live right alongside the relational tables they are built from. This eliminates the data pipeline overhead that plagues external graph solutions.</p>
+
+  <p>The studio provides an interactive notebook environment where Python, PGQL, and SQL can all live in the same document. This is where I built, queried, and visualized the <code>BANK_GRAPH</code> and it felt genuinely like a first-class analytics workbench.</p>
+
+  <div class="section-intro">
+    Oracle Graph Studio sits inside <span class="inline-highlight">Oracle Autonomous AI Database</span>, combining in-memory graph processing via Oracle PGX with over 80 built-in graph algorithms, native PGQL query execution, and interactive visual exploration, all secured behind Oracle's enterprise-grade infrastructure.
+  </div>
+
+  <h2>Loading the Graph into Oracle PGX</h2>
+
+  <p>The first step is bringing the graph into Oracle's in-memory graph server, Oracle PGX. PGX is designed for high-throughput parallel graph analysis and makes multi-hop traversals dramatically faster than disk-based approaches. The Python-PGX API makes this simple:</p>
+
+  <div class="code-block">
+    <span class="code-label">Python · PGX</span>
+    <pre><span class="cmt"># Load BANK_GRAPH into the in-memory graph server</span>
+<span class="var">GRAPH_NAME</span> <span class="op">=</span> <span class="str">"BANK_GRAPH"</span>
+
+<span class="var">graph</span> <span class="op">=</span> <span class="var">session</span>.<span class="fn">get_graph</span>(<span class="var">GRAPH_NAME</span>)
+
+<span class="kw">if</span> <span class="var">graph</span> <span class="op">==</span> <span class="kw">None</span>:
+    <span class="var">session</span>.<span class="fn">read_graph_by_name</span>(<span class="var">GRAPH_NAME</span>, <span class="str">"pg_view"</span>)
+    <span class="fn">print</span>(<span class="str">"Graph "</span> <span class="op">+</span> <span class="var">GRAPH_NAME</span> <span class="op">+</span> <span class="str">" successfully loaded"</span>)
+    <span class="var">graph</span> <span class="op">=</span> <span class="var">session</span>.<span class="fn">get_graph</span>(<span class="var">GRAPH_NAME</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"Graph '"</span> <span class="op">+</span> <span class="var">GRAPH_NAME</span> <span class="op">+</span> <span class="str">"' already loaded"</span>)</pre>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <span class="terminal-label">OUTPUT</span>
+    </div>
+    <div class="terminal-body">
+      <span class="t-success">Graph 'BANK_GRAPH' already loaded</span>
+    </div>
+  </div>
+
+  <p>With the graph in memory, every subsequent algorithm and query operates at in-memory speeds, which matters enormously when traversing thousands of interconnected accounts.</p>
+
+  <h2>Querying the Graph with PGQL</h2>
+
+  <p>PGQL (Property Graph Query Language) is Oracle's SQL-like language built specifically for property graphs. It extends familiar SQL concepts with pattern-matching syntax that describes graph structures naturally. The core of any PGQL query is the <code>MATCH</code> clause:</p>
+
+  <div class="code-block">
+    <span class="code-label">PGQL</span>
+    <pre><span class="cmt">/* Query and visualize 100 elements of BANK_GRAPH */</span>
+<span class="kw">SELECT</span> <span class="op">*</span>
+<span class="kw">FROM</span> <span class="fn">MATCH</span> <span class="op">(</span><span class="var">s</span><span class="op">)-[</span><span class="var">t</span><span class="op">]->(</span><span class="var">d</span><span class="op">)</span> <span class="kw">ON</span> <span class="var">bank_graph</span>
+<span class="kw">LIMIT</span> <span class="num">100</span></pre>
+  </div>
+
+  <p>Here, <code>(s)</code> is the source account node, <code>[t]</code> is the transaction edge, and <code>(d)</code> is the destination account node. The arrow direction captures the flow of money. What renders in the notebook is not a flat table but an <strong>interactive force-directed graph</strong> where you can explore connections visually.</p>
+
+  <div class="graph-viz-container">
+    <div class="graph-viz-header">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="graph-viz-label">Oracle Graph Studio · BANK_GRAPH · 100 Elements</span>
+    </div>
+    <div class="graph-viz-body">
+      <svg id="graph-overview" height="340"></svg>
+    </div>
+    <div class="graph-viz-caption">SELECT * FROM MATCH (s)-[t]->(d) ON bank_graph LIMIT 100 &nbsp;·&nbsp; Force-directed layout · Nodes = accounts · Edges = transfers</div>
+  </div>
+  <script>
+  (function(){
+    const svg = d3.select("#graph-overview");
+    const W = svg.node().parentElement.clientWidth || 780;
+    const H = 340;
+    svg.attr("width", W).attr("height", H);
+    svg.append("defs").append("marker").attr("id","arrow-ov").attr("markerWidth",6).attr("markerHeight",6).attr("refX",14).attr("refY",3).attr("orient","auto").append("path").attr("d","M0,0 L6,3 L0,6 Z").attr("fill","rgba(100,180,255,0.5)");
+    const g = svg.append("g");
+    // Seed deterministic positions for ~30 representative accounts
+    const accts = [134,203,267,312,387,406,451,502,534,597,623,678,711,754,801,852,899,934,45,98,156,478,521,645,732,810,963,77,190,355];
+    const nodeMap = {};
+    const rng = (seed => { let s=seed; return ()=>{ s=(s*9301+49297)%233280; return s/233280; }; })(42);
+    const nodes = accts.map((id,i) => {
+      const angle = (i/accts.length)*2*Math.PI + rng()*0.3;
+      const r = 80 + rng()*90;
+      const x = W/2 + r*Math.cos(angle);
+      const y = H/2 + r*Math.sin(angle);
+      nodeMap[id] = {id, x, y, index: i};
+      return nodeMap[id];
+    });
+    // Create ~50 edges
+    const edges = [];
+    const edgePairs = [[387,934],[934,406],[406,387],[534,597],[597,534],[387,451],[451,387],[934,312],[312,203],[203,934],[267,387],[387,267],[711,934],[934,711],[852,387],[387,852],[45,203],[98,267],[156,312],[478,534],[521,597],[645,623],[732,678],[810,711],[963,754],[77,801],[190,852],[355,899],[134,45],[203,98],[267,156],[312,478],[387,521],[406,645],[451,732],[502,810],[534,963],[597,77],[623,190],[678,355],[711,134],[754,203],[801,267],[852,312],[899,478],[934,521],[45,645],[98,732],[156,810],[478,963]];
+    edgePairs.forEach(([s,d])=>{ if(nodeMap[s]&&nodeMap[d]) edges.push({source:nodeMap[s],target:nodeMap[d]}); });
+    g.selectAll("line.edge").data(edges).enter().append("line").attr("x1",d=>d.source.x).attr("y1",d=>d.source.y).attr("x2",d=>d.target.x).attr("y2",d=>d.target.y).attr("stroke","rgba(100,180,255,0.25)").attr("stroke-width",1).attr("marker-end","url(#arrow-ov)");
+    const highlight = {387:true,934:true,406:true};
+    g.selectAll("circle.node").data(nodes).enter().append("circle").attr("cx",d=>d.x).attr("cy",d=>d.y).attr("r",d=>highlight[d.id]?13:7).attr("fill",d=>d.id===934?"#c0392b":d.id===387?"#e67e22":d.id===406?"#8e44ad":"rgba(100,180,255,0.7)").attr("stroke",d=>highlight[d.id]?"rgba(255,255,255,0.6)":"none").attr("stroke-width",1.5);
+    g.selectAll("text.lbl").data(nodes.filter(d=>highlight[d.id])).enter().append("text").attr("x",d=>d.x).attr("y",d=>d.y-18).attr("text-anchor","middle").attr("fill","rgba(255,255,255,0.85)").attr("font-size","11px").attr("font-family","JetBrains Mono, monospace").text(d=>d.id);
+  })();
+  </script>
+
+  <div class="callout">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body">
+      PGQL also supports <strong>runtime bind parameters</strong>, allowing dynamic traversal at query time. By passing a specific account ID as a parameter, the query filters the graph traversal to that account's immediate neighborhood, which is exactly how fraud investigators drill into specific suspects.
+    </div>
+  </div>
+
+  <h2>Finding the Most Connected Accounts</h2>
+
+  <p>Before hunting for cycles, I identified the accounts with the highest total transaction volume using PGQL's built-in <code>IN_DEGREE</code> and <code>OUT_DEGREE</code> functions, which count incoming and outgoing edges respectively:</p>
+
+  <div class="code-block">
+    <span class="code-label">PGQL</span>
+    <pre><span class="cmt">/* Top 10 accounts by total transaction count */</span>
+<span class="kw">SELECT</span> <span class="var">a</span>.acct_id,
+       (<span class="fn">in_degree</span>(<span class="var">a</span>) <span class="op">+</span> <span class="fn">out_degree</span>(<span class="var">a</span>)) <span class="kw">AS</span> <span class="var">num_transactions</span>
+<span class="kw">FROM</span> <span class="fn">MATCH</span> (<span class="var">a</span>) <span class="kw">ON</span> <span class="var">bank_graph</span>
+<span class="kw">ORDER BY</span> <span class="var">num_transactions</span> <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="num">10</span></pre>
+  </div>
+
+  <p>Two accounts immediately stood out: <span class="acct">387</span> and <span class="acct">934</span>. Account 934 had 44 total transactions, placing it firmly in the top tier of activity. This high connectivity alone is not evidence of fraud, but it is exactly the kind of signal that warrants deeper investigation.</p>
+
+  <h2>Circular Chain Detection: The Core Use Case</h2>
+
+  <p>This is where graph analytics earns its place in the fraud detection toolkit. I queried for circular payment chains of exactly 4 hops that originate and terminate at account <span class="acct">934</span>:</p>
+
+  <div class="code-block">
+    <span class="code-label">PGQL · Cycle Detection</span>
+    <pre><span class="cmt">/* Circular payment chains of length 4 from account 934 */</span>
+<span class="kw">SELECT</span> <span class="var">v</span>, <span class="var">e</span>, <span class="var">v2</span>
+<span class="kw">FROM</span> <span class="fn">MATCH</span> <span class="op">(</span><span class="var">v</span><span class="op">)-[</span><span class="var">e</span><span class="op">]->{</span><span class="num">4</span><span class="op">}(</span><span class="var">v2</span><span class="op">)</span> <span class="kw">ON</span> <span class="var">bank_graph</span>
+<span class="kw">WHERE</span> <span class="var">v</span>.acct_id <span class="op">=</span> <span class="num">934</span>
+  <span class="kw">AND</span> <span class="var">v2</span>.acct_id <span class="op">=</span> <span class="num">934</span></pre>
+  </div>
+
+  <div class="graph-viz-container">
+    <div class="graph-viz-header">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="graph-viz-label">Circular Chains · Length 4 · Account 934</span>
+    </div>
+    <div class="graph-viz-body">
+      <svg id="graph-cycle4" height="300"></svg>
+    </div>
+    <div class="graph-viz-caption">MATCH ALL (a)-[:TRANSFERS]->{4}(b) WHERE a.acct_id=934 AND id(a)=id(b) &nbsp;·&nbsp; 3 circular chains detected &nbsp;·&nbsp; Account 934 highlighted in red</div>
+  </div>
+  <script>
+  (function(){
+    const svg = d3.select("#graph-cycle4");
+    const W = svg.node().parentElement.clientWidth || 780;
+    const H = 300;
+    svg.attr("width", W).attr("height", H);
+    svg.append("defs").append("marker").attr("id","arrow-c4").attr("markerWidth",7).attr("markerHeight",7).attr("refX",15).attr("refY",3.5).attr("orient","auto").append("path").attr("d","M0,0 L7,3.5 L0,7 Z").attr("fill","rgba(199,70,52,0.7)");
+    const cx = W/2, cy = H/2;
+    const chains = [
+      [{id:934,x:cx,y:cy},{id:330,x:cx-130,y:cy-90},{id:325,x:cx-50,y:cy-150},{id:313,x:cx+100,y:cy-90}],
+      [{id:934,x:cx,y:cy},{id:397,x:cx+140,y:cy+30},{id:313,x:cx+100,y:cy-90},{id:325,x:cx-50,y:cy-150}],
+      [{id:934,x:cx,y:cy},{id:406,x:cx-140,y:cy+30},{id:999,x:cx-80,y:cy+130},{id:348,x:cx+80,y:cy+130}],
+    ];
+    const colors = ["rgba(199,70,52,0.85)","rgba(230,126,34,0.85)","rgba(142,68,173,0.85)"];
+    chains.forEach((chain,ci)=>{
+      for(let i=0;i<chain.length;i++){
+        const s=chain[i],t=chain[(i+1)%chain.length];
+        const dx=t.x-s.x,dy=t.y-s.y,len=Math.sqrt(dx*dx+dy*dy);
+        svg.append("line").attr("x1",s.x+dx/len*13).attr("y1",s.y+dy/len*13).attr("x2",t.x-dx/len*16).attr("y2",t.y-dy/len*16).attr("stroke",colors[ci]).attr("stroke-width",2).attr("opacity",0.75).attr("marker-end","url(#arrow-c4)");
+      }
+    });
+    const nodeSet={};
+    chains.flat().forEach(n=>{ if(!nodeSet[n.id]) nodeSet[n.id]=n; });
+    const allNodes=Object.values(nodeSet);
+    svg.selectAll("circle.cn").data(allNodes).enter().append("circle").attr("cx",d=>d.x).attr("cy",d=>d.y).attr("r",d=>d.id===934?17:11).attr("fill",d=>d.id===934?"#c0392b":d.id===406?"#8e44ad":"rgba(60,100,180,0.75)").attr("stroke","rgba(255,255,255,0.4)").attr("stroke-width",1.5);
+    svg.selectAll("text.cn").data(allNodes).enter().append("text").attr("x",d=>d.x).attr("y",d=>d.y).attr("text-anchor","middle").attr("dominant-baseline","central").attr("fill","#fff").attr("font-size","10px").attr("font-family","JetBrains Mono,monospace").text(d=>d.id);
+  })();
+  </script>
+
+  <div class="graph-viz-container">
+    <div class="graph-viz-header">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="graph-viz-label">Circular Chains · Length 5 · Account 934</span>
+    </div>
+    <div class="graph-viz-body">
+      <svg id="graph-cycle5" height="300"></svg>
+    </div>
+    <div class="graph-viz-caption">MATCH ALL (a)-[:TRANSFERS]->{5}(b) WHERE a.acct_id=934 AND id(a)=id(b) &nbsp;·&nbsp; More cycles detected at 5 hops — elevated suspicion signal</div>
+  </div>
+  <script>
+  (function(){
+    const svg = d3.select("#graph-cycle5");
+    const W = svg.node().parentElement.clientWidth || 780;
+    const H = 300;
+    svg.attr("width", W).attr("height", H);
+    svg.append("defs").append("marker").attr("id","arrow-c5").attr("markerWidth",7).attr("markerHeight",7).attr("refX",15).attr("refY",3.5).attr("orient","auto").append("path").attr("d","M0,0 L7,3.5 L0,7 Z").attr("fill","rgba(199,70,52,0.6)");
+    const cx = W/2, cy = H/2;
+    const chains5 = [
+      [{id:934,x:cx,y:cy},{id:352,x:cx-120,y:cy-100},{id:330,x:cx-140,y:cy+50},{id:325,x:cx-50,y:cy+130},{id:313,x:cx+100,y:cy+70}],
+      [{id:934,x:cx,y:cy},{id:970,x:cx+130,y:cy-80},{id:397,x:cx+70,y:cy-148},{id:325,x:cx-50,y:cy+130},{id:406,x:cx-130,y:cy+20}],
+      [{id:934,x:cx,y:cy},{id:597,x:cx+85,y:cy+115},{id:999,x:cx-60,y:cy+145},{id:348,x:cx-145,y:cy+10},{id:330,x:cx-120,y:cy-100}],
+    ];
+    const colors5=["rgba(199,70,52,0.75)","rgba(231,76,60,0.65)","rgba(192,57,43,0.55)"];
+    chains5.forEach((chain,ci)=>{
+      for(let i=0;i<chain.length;i++){
+        const s=chain[i],t=chain[(i+1)%chain.length];
+        const dx=t.x-s.x,dy=t.y-s.y,len=Math.sqrt(dx*dx+dy*dy);
+        svg.append("line").attr("x1",s.x+dx/len*13).attr("y1",s.y+dy/len*13).attr("x2",t.x-dx/len*16).attr("y2",t.y-dy/len*16).attr("stroke",colors5[ci]).attr("stroke-width",1.6).attr("opacity",0.78).attr("marker-end","url(#arrow-c5)");
+      }
+    });
+    const nodeSet={};
+    chains5.flat().forEach(n=>{ if(!nodeSet[n.id]) nodeSet[n.id]=n; });
+    const allNodes=Object.values(nodeSet);
+    svg.selectAll("circle.c5").data(allNodes).enter().append("circle").attr("cx",d=>d.x).attr("cy",d=>d.y).attr("r",d=>d.id===934?17:10).attr("fill",d=>d.id===934?"#c0392b":"rgba(60,100,180,0.7)").attr("stroke","rgba(255,255,255,0.35)").attr("stroke-width",1.2);
+    svg.selectAll("text.c5").data(allNodes).enter().append("text").attr("x",d=>d.x).attr("y",d=>d.y).attr("text-anchor","middle").attr("dominant-baseline","central").attr("fill","#fff").attr("font-size","10px").attr("font-family","JetBrains Mono,monospace").text(d=>d.id);
+  })();
+  </script>
+
+  <div class="findings-box">
+    <span class="findings-label">INVESTIGATION RESULTS</span>
+    <div class="finding-row">
+      <div class="finding-bullet">1</div>
+      <div class="finding-text">Account <span class="acct">934</span> has <strong>3 distinct circular payment chains of length 4</strong>. Money leaves the account, passes through three intermediaries, and returns to the origin.</div>
+    </div>
+    <div class="finding-row">
+      <div class="finding-bullet">2</div>
+      <div class="finding-text">Extending the search to <strong>5-hop chains</strong> reveals even more cycles, dramatically increasing the suspicion level. The number of circular paths is directly proportional to the risk signal.</div>
+    </div>
+    <div class="finding-row">
+      <div class="finding-bullet">3</div>
+      <div class="finding-text">Account <span class="acct">387</span> displays similar behavior: high degree centrality and circular payment patterns placing it firmly in the suspect list alongside 934.</div>
+    </div>
+  </div>
+
+  <div class="pull-quote">
+    <p>In a relational model, detecting a 5-hop circular chain requires five nested self-joins. In PGQL on a property graph, it is a single pattern match that runs in seconds against an in-memory graph.</p>
+  </div>
+
+  <h2>Applying Graph Algorithms at Scale</h2>
+
+  <p>Oracle Graph Studio ships with over 80 built-in graph algorithms accessible directly from the Python-PGX API. Here is how I layered multiple algorithms to build a complete picture of the suspicious activity.</p>
+  <div class="section-intro">
+    
+    <div style="
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--oracle-red);
+      margin-bottom: 14px;
+    ">
+      Graph Analytics + AI
+    </div>
+
+    As enterprise AI systems become more relationship-driven, graph analytics is becoming a critical foundation for intelligent applications. Oracle Graph Studio combines graph querying, graph machine learning, and in-memory analytics within Oracle Autonomous AI Database, allowing organizations to build connected AI workflows directly on top of transactional data.
+    <br><br>
+    By transforming relational data into property graphs, businesses can uncover hidden relationships, detect fraud patterns, power recommendation systems, build knowledge graphs, and improve AI reasoning across highly connected datasets. Algorithms like DeepWalk and PageRank make it possible to move beyond static rule-based analysis into structurally aware intelligence systems.
+  </div>
+  <div class="algo-grid">
+    <div class="algo-card">
+      <div class="algo-name">Algorithm 01</div>
+      <div class="algo-title">PageRank</div>
+      <p class="algo-desc">Measures the global importance of each account node. Accounts with high PageRank are either heavily transacted or deeply connected to accounts that are. Account 934 ranked in the top 5 globally.</p>
+    </div>
+    <div class="algo-card secondary">
+      <div class="algo-name">Algorithm 02</div>
+      <div class="algo-title">Personalized PageRank</div>
+      <p class="algo-desc">Computes PageRank relative to a specific seed set. Using accounts 934 and 387 as seeds exposed account <span class="acct">406</span> as the next highest-risk account in the network.</p>
+    </div>
+    <div class="algo-card tertiary">
+      <div class="algo-name">Algorithm 03</div>
+      <div class="algo-title">ShortestPathHopDist</div>
+      <p class="algo-desc">Calculates the minimum hop distance from every account to the suspect nodes. Accounts within 1 to 2 hops carry significantly elevated risk of involvement.</p>
+    </div>
+    <div class="algo-card quaternary">
+      <div class="algo-name">Algorithm 04</div>
+      <div class="algo-title">DeepWalk (Graph ML)</div>
+      <p class="algo-desc">A graph embedding model that learns structural similarity between nodes. Accounts that behave structurally like 934 and 387 were surfaced without any explicit rule definition.</p>
+    </div>
+  </div>
+
+  <h3>PageRank: Quantifying Influence</h3>
+
+  <p>PageRank was originally developed to rank web pages, but its logic translates perfectly to financial networks: a node is important if it receives flows from other important nodes. Running it on the banking graph:</p>
+
+  <div class="code-block">
+    <span class="code-label">Python · PGX</span>
+    <pre><span class="var">graph</span> <span class="op">=</span> <span class="var">session</span>.<span class="fn">get_graph</span>(<span class="str">"BANK_GRAPH"</span>)
+<span class="var">analyst</span>.<span class="fn">pagerank</span>(<span class="var">graph</span>)</pre>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <span class="terminal-label">OUTPUT</span>
+    </div>
+    <div class="terminal-body">
+      <span class="t-success">VertexProperty(name: pagerank, type: double, graph: BANK_GRAPH)</span>
+    </div>
+  </div>
+
+  <p>The result is a new property, <code>pagerank</code>, attached to every account node. Querying the top accounts reveals that <span class="acct">934</span> ranks in the top 5, and <span class="acct">387</span> tops the list. The PageRank metric independently corroborates what circular chain detection already suggested.</p>
+
+  <div class="graph-viz-container">
+    <div class="graph-viz-header">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="graph-viz-label">PageRank Visualization · Hierarchical Layout · 6-hop from 934</span>
+    </div>
+    <div class="graph-viz-body">
+      <svg id="graph-pagerank" height="340"></svg>
+    </div>
+    <div class="graph-viz-caption">SELECT v,e,v2 FROM MATCH ANY (n)-[:TRANSFERS]->{6}(m) WHERE n.acct_id=934 &nbsp;·&nbsp; Node size = PageRank value &nbsp;·&nbsp; Red = high PageRank (≥0.0035)</div>
+  </div>
+  <script>
+  (function(){
+    const svg = d3.select("#graph-pagerank");
+    const W = svg.node().parentElement.clientWidth || 780;
+    const H = 340;
+    svg.attr("width", W).attr("height", H);
+    svg.append("defs").append("marker").attr("id","arrow-pr").attr("markerWidth",6).attr("markerHeight",6).attr("refX",13).attr("refY",3).attr("orient","auto").append("path").attr("d","M0,0 L6,3 L0,6 Z").attr("fill","rgba(150,150,200,0.5)");
+    // Hierarchical layout: 934 at center top, radiating connections
+    const nodes = [
+      {id:387,x:W/2,y:30,pr:0.0048,high:true},
+      {id:934,x:W/2-120,y:90,pr:0.0041,high:true},
+      {id:406,x:W/2+100,y:80,pr:0.0038,high:true},
+      {id:451,x:W/2-200,y:170,pr:0.0031,high:false},
+      {id:312,x:W/2-80,y:170,pr:0.0028,high:false},
+      {id:623,x:W/2+50,y:170,pr:0.0026,high:false},
+      {id:711,x:W/2+190,y:170,pr:0.0024,high:false},
+      {id:203,x:W/2-240,y:260,pr:0.0019,high:false},
+      {id:330,x:W/2-130,y:260,pr:0.0018,high:false},
+      {id:325,x:W/2-20,y:260,pr:0.0016,high:false},
+      {id:597,x:W/2+80,y:260,pr:0.0015,high:false},
+      {id:732,x:W/2+190,y:260,pr:0.0014,high:false},
+    ];
+    const nodeMap = {};
+    nodes.forEach(n=>nodeMap[n.id]=n);
+    const edges = [[387,934],[387,406],[934,451],[934,312],[406,623],[406,711],[451,203],[451,330],[312,325],[623,597],[711,732],[312,330],[934,406],[406,312]];
+    edges.forEach(([s,d])=>{
+      const sn=nodeMap[s],tn=nodeMap[d];
+      if(!sn||!tn) return;
+      const dx=tn.x-sn.x,dy=tn.y-sn.y,len=Math.sqrt(dx*dx+dy*dy);
+      const r1=(sn.high?16:10),r2=(tn.high?16:10);
+      svg.append("line").attr("x1",sn.x+dx/len*r1).attr("y1",sn.y+dy/len*r1).attr("x2",tn.x-dx/len*(r2+4)).attr("y2",tn.y-dy/len*(r2+4)).attr("stroke","rgba(120,140,200,0.35)").attr("stroke-width",1).attr("marker-end","url(#arrow-pr)");
+    });
+    nodes.forEach(n=>{
+      const r=n.high?17:10;
+      const fill=n.id===387?"#e67e22":n.id===934?"#c0392b":n.high?"#8e44ad":"rgba(60,100,180,0.65)";
+      svg.append("circle").attr("cx",n.x).attr("cy",n.y).attr("r",r).attr("fill",fill).attr("stroke",n.high?"rgba(255,255,255,0.5)":"rgba(255,255,255,0.2)").attr("stroke-width",1.5);
+      svg.append("text").attr("x",n.x).attr("y",n.y).attr("text-anchor","middle").attr("dominant-baseline","central").attr("fill","#fff").attr("font-size",n.high?"11px":"9px").attr("font-family","JetBrains Mono,monospace").text(n.id);
+      if(n.high){
+        svg.append("text").attr("x",n.x).attr("y",n.y+r+12).attr("text-anchor","middle").attr("fill","rgba(230,126,34,0.85)").attr("font-size","9px").attr("font-family","JetBrains Mono,monospace").text("PR:"+n.pr.toFixed(4));
+      }
+    });
+  })();
+  </script>
+
+  <h3>Personalized PageRank: Mapping the Risk Radius</h3>
+
+  <p>Once the fraud team flagged 934 and 387 as suspects, I used Personalized PageRank to measure how closely every other account is connected to this specific pair:</p>
+
+  <div class="code-block">
+    <span class="code-label">Python · PGX</span>
+    <pre><span class="var">vertices</span> <span class="op">=</span> <span class="var">graph</span>.<span class="fn">create_vertex_set</span>()
+<span class="var">vertices</span>.<span class="fn">add_all_by_label</span>(<span class="str">"BANK_ACCOUNTS"</span>)
+<span class="var">analyst</span>.<span class="fn">personalized_pagerank</span>(<span class="var">graph</span>, <span class="var">vertices</span>)</pre>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <span class="terminal-label">OUTPUT</span>
+    </div>
+    <div class="terminal-body">
+      <span class="t-success">VertexProperty(name: personalized_pagerank, type: double, graph: BANK_GRAPH)</span>
+    </div>
+  </div>
+
+  <p>The results placed account <span class="acct">406</span> immediately after the two known suspects, meaning it sits structurally close to both 934 and 387 in the transaction network. When I queried its immediate neighbors, the connectivity confirmed elevated risk. This is investigative graph analytics working exactly as it should.</p>
+
+  <div class="graph-viz-container">
+    <div class="graph-viz-header">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="graph-viz-label">Shortest Paths · Account 934 → Account 387 · Top 5</span>
+    </div>
+    <div class="graph-viz-body">
+      <svg id="graph-shortest" height="310"></svg>
+    </div>
+    <div class="graph-viz-caption">MATCH TOP 5 SHORTEST (a)-[:TRANSFERS]->+(b) WHERE a.acct_id=934 AND b.acct_id=387 &nbsp;·&nbsp; Each path shown in a distinct color</div>
+  </div>
+  <script>
+  (function(){
+    const svg = d3.select("#graph-shortest");
+    const W = svg.node().parentElement.clientWidth || 780;
+    const H = 310;
+    svg.attr("width", W).attr("height", H);
+    svg.append("defs").append("marker").attr("id","arrow-sp").attr("markerWidth",7).attr("markerHeight",7).attr("refX",15).attr("refY",3.5).attr("orient","auto").append("path").attr("d","M0,0 L7,3.5 L0,7 Z").attr("fill","rgba(255,255,255,0.4)");
+    const src = {id:934,x:60,y:H/2};
+    const dst = {id:387,x:W-60,y:H/2};
+    // 5 paths with different intermediate nodes
+    const paths = [
+      [{id:934,x:60,y:H/2},{id:651,x:W*0.35,y:60},{id:824,x:W*0.65,y:60},{id:387,x:W-60,y:H/2}],
+      [{id:934,x:60,y:H/2},{id:456,x:W*0.4,y:H/2-30},{id:387,x:W-60,y:H/2}],
+      [{id:934,x:60,y:H/2},{id:312,x:W*0.3,y:H/2+70},{id:623,x:W*0.6,y:H/2+50},{id:387,x:W-60,y:H/2}],
+      [{id:934,x:60,y:H/2},{id:673,x:W*0.33,y:H/2+120},{id:732,x:W*0.55,y:H/2+130},{id:451,x:W*0.75,y:H/2+70},{id:387,x:W-60,y:H/2}],
+      [{id:934,x:60,y:H/2},{id:203,x:W*0.27,y:H/2-100},{id:325,x:W*0.52,y:H/2-110},{id:597,x:W*0.72,y:H/2-60},{id:387,x:W-60,y:H/2}],
+    ];
+    const pathColors=["rgba(52,152,219,0.85)","rgba(46,204,113,0.85)","rgba(155,89,182,0.85)","rgba(241,196,15,0.85)","rgba(230,126,34,0.85)"];
+    paths.forEach((path,pi)=>{
+      for(let i=0;i<path.length-1;i++){
+        const s=path[i],t=path[i+1];
+        const dx=t.x-s.x,dy=t.y-s.y,len=Math.sqrt(dx*dx+dy*dy);
+        svg.append("line").attr("x1",s.x+dx/len*14).attr("y1",s.y+dy/len*14).attr("x2",t.x-dx/len*17).attr("y2",t.y-dy/len*17).attr("stroke",pathColors[pi]).attr("stroke-width",1.8).attr("opacity",0.8);
+      }
+    });
+    // collect unique nodes
+    const nodeSet={};
+    paths.flat().forEach(n=>{ if(!nodeSet[n.id]) nodeSet[n.id]=n; });
+    Object.values(nodeSet).forEach(n=>{
+      const r=n.id===934||n.id===387?16:10;
+      const fill=n.id===934?"#c0392b":n.id===387?"#e67e22":"rgba(60,100,180,0.75)";
+      svg.append("circle").attr("cx",n.x).attr("cy",n.y).attr("r",r).attr("fill",fill).attr("stroke","rgba(255,255,255,0.4)").attr("stroke-width",1.5);
+      svg.append("text").attr("x",n.x).attr("y",n.y).attr("text-anchor","middle").attr("dominant-baseline","central").attr("fill","#fff").attr("font-size","10px").attr("font-family","JetBrains Mono,monospace").text(n.id);
+    });
+  })();
+  </script>
+
+  <h3>Hop Distance: Quantifying Proximity to Suspects</h3>
+
+  <p>The ShortestPathHopDist algorithm computes the minimum number of transaction hops between each account and a target node. Here is what the distribution looks like from account 934:</p>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Hops from Account 934</th>
+        <th>Number of Accounts</th>
+        <th>Risk Level</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1 hop</td><td>5</td><td><span class="badge badge-red">Very High</span></td></tr>
+      <tr><td>2 hops</td><td>24</td><td><span class="badge badge-red">High</span></td></tr>
+      <tr><td>3 hops</td><td>102</td><td><span class="badge badge-orange">Moderate</span></td></tr>
+      <tr><td>4 hops</td><td>269</td><td><span class="badge badge-orange">Low-Moderate</span></td></tr>
+      <tr><td>5 hops</td><td>253</td><td><span class="badge badge-green">Low</span></td></tr>
+      <tr><td>Unreachable</td><td>212</td><td><span class="badge badge-green">Minimal</span></td></tr>
+    </tbody>
+  </table>
+
+  <p>This table is a triage tool. Investigators can prioritize accounts within 1 to 2 hops for immediate review, work through the 3-hop accounts next, and deprioritize unreachable accounts. Graph analytics turns a sprawling network of a thousand accounts into a ranked investigation queue.</p>
+
+  <h2>Graph Machine Learning with DeepWalk</h2>
+
+  <p>The final layer of analysis moved beyond hand-crafted queries into learned graph representations. DeepWalk is a graph embedding technique that treats random walks through the graph as sentences and learns vector representations of nodes using a word2vec-style model. Nodes that appear in similar structural contexts end up close in the embedding space.</p>
+
+  <div class="code-block">
+    <span class="code-label">Python · PGX · DeepWalk</span>
+    <pre><span class="cmt"># Build and train the DeepWalk model</span>
+<span class="var">model</span> <span class="op">=</span> <span class="var">analyst</span>.<span class="fn">deepwalk_builder</span>(
+    <span class="var">min_word_frequency</span><span class="op">=</span><span class="num">1</span>,
+    <span class="var">batch_size</span><span class="op">=</span><span class="num">512</span>,
+    <span class="var">num_epochs</span><span class="op">=</span><span class="num">1</span>,
+    <span class="var">layer_size</span><span class="op">=</span><span class="num">128</span>,
+    <span class="var">walks_per_vertex</span><span class="op">=</span><span class="num">6</span>,
+    <span class="var">walk_length</span><span class="op">=</span><span class="num">5</span>,
+    <span class="var">window_size</span><span class="op">=</span><span class="num">2</span>
+)
+
+<span class="var">model</span>.<span class="fn">fit</span>(<span class="var">graph</span>)
+<span class="cmt"># Training completed in 42.39 seconds</span></pre>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <span class="terminal-label">SIMILAR ACCOUNTS TO 934</span>
+    </div>
+    <div class="terminal-body">
+      <span class="t-prompt">></span> similars_934 = model.compute_similars("BANK_ACCOUNTS(934)", 10)<br>
+      <span class="t-output">List of nodes most similar to node 934.</span><br>
+      <span class="t-output">+-----------------------------------------+</span><br>
+      <span class="t-output">| dstVertex          | similarity         |</span><br>
+      <span class="t-output">+-----------------------------------------+</span><br>
+      <span class="t-highlight">| BANK_ACCOUNTS(934) | 1.000              |</span><br>
+      <span class="t-highlight">| BANK_ACCOUNTS(135) | 0.973              |</span><br>
+      <span class="t-output">| BANK_ACCOUNTS(387) | 0.961              |</span><br>
+      <span class="t-output">| BANK_ACCOUNTS(406) | 0.948              |</span><br>
+      <span class="t-output">+-----------------------------------------+</span>
+    </div>
+  </div>
+
+  <p>Account <span class="acct">135</span> emerged as the account most structurally similar to both 934 and 387, despite never having appeared in prior hop-distance or PageRank analysis. This is the power of graph machine learning: it surfaces accounts that <em>behave like</em> suspects in terms of connection patterns, even if they are not directly adjacent to them. No rule was written for this discovery. The model learned it.</p>
+
+  <div class="graph-viz-container">
+    <div class="graph-viz-header">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="graph-viz-label">2-Hop Network · Accounts 934, 387, 135 · DeepWalk Result</span>
+    </div>
+    <div class="graph-viz-body">
+      <svg id="graph-2hop" height="360"></svg>
+    </div>
+    <div class="graph-viz-caption">SELECT * FROM MATCH (a)-[e1]->(m)-[e2]->(d) WHERE a.acct_id IN (934,387,135) &nbsp;·&nbsp; ★ = suspect accounts identified by DeepWalk · Hierarchical layout</div>
+  </div>
+  <script>
+  (function(){
+    const svg = d3.select("#graph-2hop");
+    const W = svg.node().parentElement.clientWidth || 780;
+    const H = 360;
+    svg.attr("width", W).attr("height", H);
+    svg.append("defs").append("marker").attr("id","arrow-2h").attr("markerWidth",6).attr("markerHeight",6).attr("refX",13).attr("refY",3).attr("orient","auto").append("path").attr("d","M0,0 L6,3 L0,6 Z").attr("fill","rgba(100,160,220,0.5)");
+    // Core suspects at top, their 2-hop neighbors fanning out
+    const nodes = [
+      {id:934,x:W*0.25,y:50,suspect:true,color:"#c0392b"},
+      {id:387,x:W*0.5,y:50,suspect:true,color:"#e67e22"},
+      {id:135,x:W*0.75,y:50,suspect:true,color:"#27ae60"},
+      // 1-hop from 934
+      {id:406,x:W*0.1,y:155,suspect:false,color:"rgba(52,100,180,0.8)"},
+      {id:312,x:W*0.22,y:155,suspect:false,color:"rgba(52,100,180,0.8)"},
+      {id:330,x:W*0.34,y:155,suspect:false,color:"rgba(52,100,180,0.8)"},
+      // 1-hop from 387
+      {id:451,x:W*0.44,y:155,suspect:false,color:"rgba(52,100,180,0.8)"},
+      {id:597,x:W*0.56,y:155,suspect:false,color:"rgba(52,100,180,0.8)"},
+      // 1-hop from 135
+      {id:673,x:W*0.68,y:155,suspect:false,color:"rgba(52,100,180,0.8)"},
+      {id:732,x:W*0.82,y:155,suspect:false,color:"rgba(52,100,180,0.8)"},
+      // 2-hop
+      {id:203,x:W*0.07,y:270,suspect:false,color:"rgba(40,80,140,0.65)"},
+      {id:325,x:W*0.19,y:270,suspect:false,color:"rgba(40,80,140,0.65)"},
+      {id:999,x:W*0.31,y:270,suspect:false,color:"rgba(40,80,140,0.65)"},
+      {id:623,x:W*0.43,y:270,suspect:false,color:"rgba(40,80,140,0.65)"},
+      {id:711,x:W*0.55,y:270,suspect:false,color:"rgba(40,80,140,0.65)"},
+      {id:810,x:W*0.67,y:270,suspect:false,color:"rgba(40,80,140,0.65)"},
+      {id:963,x:W*0.79,y:270,suspect:false,color:"rgba(40,80,140,0.65)"},
+    ];
+    const nodeMap={};
+    nodes.forEach(n=>nodeMap[n.id]=n);
+    const edges=[[934,406],[934,312],[934,330],[387,451],[387,597],[135,673],[135,732],[406,203],[312,325],[330,999],[451,623],[597,711],[673,810],[732,963],[406,312],[597,406]];
+    edges.forEach(([s,d])=>{
+      const sn=nodeMap[s],tn=nodeMap[d];
+      if(!sn||!tn) return;
+      const dx=tn.x-sn.x,dy=tn.y-sn.y,len=Math.sqrt(dx*dx+dy*dy);
+      const r1=sn.suspect?16:10,r2=tn.suspect?16:9;
+      svg.append("line").attr("x1",sn.x+dx/len*r1).attr("y1",sn.y+dy/len*r1).attr("x2",tn.x-dx/len*(r2+4)).attr("y2",tn.y-dy/len*(r2+4)).attr("stroke","rgba(100,160,220,0.3)").attr("stroke-width",1).attr("marker-end","url(#arrow-2h)");
+    });
+    nodes.forEach(n=>{
+      const r=n.suspect?16:n.color.includes("40,80")?8:10;
+      svg.append("circle").attr("cx",n.x).attr("cy",n.y).attr("r",r).attr("fill",n.color).attr("stroke",n.suspect?"rgba(255,255,255,0.55)":"rgba(255,255,255,0.2)").attr("stroke-width",n.suspect?2:1);
+      svg.append("text").attr("x",n.x).attr("y",n.y).attr("text-anchor","middle").attr("dominant-baseline","central").attr("fill","#fff").attr("font-size",n.suspect?"11px":"9px").attr("font-family","JetBrains Mono,monospace").text(n.id);
+      if(n.suspect){
+        svg.append("text").attr("x",n.x).attr("y",n.y-r-8).attr("text-anchor","middle").attr("fill","rgba(255,220,100,0.9)").attr("font-size","14px").text("★");
+      }
+    });
+    // Legend
+    const legend=[{c:"#c0392b",t:"934 (suspect)"},{c:"#e67e22",t:"387 (suspect)"},{c:"#27ae60",t:"135 (DeepWalk)"}];
+    legend.forEach((l,i)=>{
+      svg.append("circle").attr("cx",W-160).attr("cy",H-70+i*20).attr("r",6).attr("fill",l.c);
+      svg.append("text").attr("x",W-148).attr("y",H-70+i*20).attr("dominant-baseline","central").attr("fill","rgba(255,255,255,0.6)").attr("font-size","10px").attr("font-family","JetBrains Mono,monospace").text(l.t);
+    });
+  })();
+  </script>
+
+  <h2>The Investigation Pipeline</h2>
+
+  <div class="flow-wrapper">
+    <div class="flow-title">Graph Fraud Investigation Workflow</div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-step-num">01</div>
+        <div class="flow-step-name">Load Graph into PGX Memory</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-step-num">02</div>
+        <div class="flow-step-name">Identify High-Degree Accounts</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-step-num">03</div>
+        <div class="flow-step-name">Detect Circular Chains (PGQL)</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-step-num">04</div>
+        <div class="flow-step-name">Run PageRank + Hop Distance</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-step-num">05</div>
+        <div class="flow-step-name">DeepWalk Similarity Search</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Key Takeaways</h2>
+
+  <p>Working through this end-to-end fraud detection use case on Oracle Graph Studio reinforced several things that I think matter deeply for anyone considering graph analytics as part of their data strategy:</p>
+
+  <div class="findings-box">
+    <span class="findings-label">WHAT I LEARNED</span>
+    <div class="finding-row">
+      <div class="finding-bullet">1</div>
+      <div class="finding-text"><strong>Integration is a superpower.</strong> Oracle Graph Studio sitting natively inside Autonomous AI Database means zero data movement. Your relational data becomes a graph with a model definition, not a migration project.</div>
+    </div>
+    <div class="finding-row">
+      <div class="finding-bullet">2</div>
+      <div class="finding-text"><strong>PGQL is remarkably expressive.</strong> Pattern matching on multi-hop paths that would require deeply nested SQL becomes readable, maintainable code. The syntax maps directly to how analysts think about graph problems.</div>
+    </div>
+    <div class="finding-row">
+      <div class="finding-bullet">3</div>
+      <div class="finding-text"><strong>Algorithms compound insight.</strong> No single algorithm told the full story. Degree centrality pointed at suspects. Circular chain detection confirmed the pattern. PageRank quantified global influence. DeepWalk found hidden accomplices. Each layer added a new dimension of evidence.</div>
+    </div>
+    <div class="finding-row">
+      <div class="finding-bullet">4</div>
+      <div class="finding-text"><strong>Graph ML finds what rules miss.</strong> DeepWalk surfaced account 135 purely from structural similarity. This is the kind of discovery that a rule-based system, no matter how sophisticated, simply cannot make.</div>
+    </div>
+    <div class="finding-row">
+      <div class="finding-bullet">5</div>
+      <div class="finding-text"><strong>Visualization accelerates understanding.</strong> Oracle Graph Studio's interactive graph renderer transforms abstract query results into navigable network diagrams. Patterns that are invisible in a table become obvious when rendered as a connected graph.</div>
+    </div>
+  </div>
+
+  <h2>Final Thoughts</h2>
+
+  <p>Graph technology has moved from a niche data science tool to a mainstream analytical capability, and Oracle has built one of the most complete integrated environments for it. Oracle Graph Studio delivers the full stack: data modeling, in-memory computation via PGX, expressive querying with PGQL, rich visualization, and now graph machine learning, all without leaving the Autonomous Database environment.</p>
+
+  <p>For organizations dealing with financial crime, supply chain complexity, identity networks, or any domain where relationships carry meaning, this is a genuinely compelling platform. The circular payment detection use case demonstrated here is just one example of what becomes possible when you stop thinking in tables and start thinking in graphs.</p>
+
+  <p>The real message is this: the relationships in your data are often more valuable than the data itself. Graph analytics is how you extract that value.</p>
+
+</article>
+</div>
+
+<hr class="divider">
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Oracle <span>Graph</span> Studio</div>
+    <p style="font-size:14px; line-height:1.7; margin-bottom:8px;">
+      Written by <strong style="color:#fff;">Madhalasa SJ</strong>
+    </p>
+    <p style="font-size:13px; color:rgba(255,255,255,0.4);">Exploring Oracle Cloud, AI databases, and graph analytics.</p>
+    <div class="footer-tags">
+      <span class="tag">Oracle Graph Studio</span>
+      <span class="tag">Autonomous AI Database</span>
+      <span class="tag">PGQL</span>
+      <span class="tag">Oracle PGX</span>
+      <span class="tag">PageRank</span>
+      <span class="tag">DeepWalk</span>
+      <span class="tag">Fraud Detection</span>
+      <span class="tag">Graph ML</span>
+      <span class="tag">Property Graphs</span>
+      <span class="tag">Financial Analytics</span>
+    </div>
+    <div class="footer-copy">May 2026 &nbsp;·&nbsp; Oracle Cloud Infrastructure</div>
+  </div>
+</footer>
+
+</body>
+</html>
