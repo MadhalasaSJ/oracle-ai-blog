@@ -806,10 +806,39 @@
     pointer-events: none;
     text-anchor: middle;
   }
+  .blog-nav {
+  background: #111827;
+  padding: 14px 32px;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.blog-nav a {
+  color: rgba(255,255,255,0.75);
+  text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  transition: color 0.2s ease;
+}
+
+.blog-nav a:hover,
+.blog-nav a.active {
+  color: #C74634;
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 </head>
 <body>
+  <nav class="blog-nav">
+    <a href="index.html" class="active">Home</a>
+    <a href="oci_gen_ai.html">Oracle AI</a>
+    <a href="oracle-nosql.html">Oracle NoSQL</a>
+    <a href="spatiotemporal-fraud-detection-blog.html">Fraud Detection</a>
+    <a href="oracle_graph_studio_blog.html">Graph Studio</a>
+  </nav>
 
 <!-- HEADER -->
 <header>
