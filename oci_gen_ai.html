@@ -790,6 +790,102 @@
 
   transform:translateY(-1px);
 }
+.sidebar-menu{
+  position:fixed;
+  top:0;
+  left:-320px;
+
+  width:300px;
+  height:100vh;
+
+  background:#07110F;
+
+  border-right:1px solid rgba(255,255,255,0.06);
+
+  padding:26px 22px;
+
+  z-index:2000;
+
+  transition:left 0.28s ease;
+}
+
+.sidebar-menu.active{
+  left:0;
+}
+
+.sidebar-overlay{
+  position:fixed;
+  inset:0;
+
+  background:rgba(0,0,0,0.45);
+
+  opacity:0;
+  visibility:hidden;
+
+  z-index:1500;
+
+  transition:0.2s ease;
+}
+
+.sidebar-overlay.active{
+  opacity:1;
+  visibility:visible;
+}
+
+.sidebar-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  margin-bottom:30px;
+}
+
+.sidebar-title{
+  font-size:12px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+
+  color:#ffffff;
+
+  font-family:'JetBrains Mono', monospace;
+}
+
+.close-btn{
+  background:none;
+  border:none;
+
+  color:#fff;
+
+  font-size:20px;
+
+  cursor:pointer;
+}
+
+.sidebar-links{
+  display:flex;
+  flex-direction:column;
+}
+
+.sidebar-links a{
+  color:rgba(255,255,255,0.82);
+
+  text-decoration:none;
+
+  font-family:'DM Sans', sans-serif;
+
+  font-size:16px;
+
+  padding:16px 0;
+
+  border-bottom:1px solid rgba(255,255,255,0.05);
+
+  transition:0.2s ease;
+}
+
+.sidebar-links a:hover{
+  color:#C74634;
+  padding-left:6px;
+}
 
 </style>
 </head>
@@ -827,7 +923,7 @@ function toggleMenu() {
     </button>
 
   </div>
-
+  
   <nav class="sidebar-links">
 
     <a href="index.html">Home</a>
@@ -869,7 +965,7 @@ function toggleMenu() {
   id="sidebarOverlay"
   onclick="toggleMenu()">
 </div>
-
+</nav>
   
 <!-- HERO -->
 <section class="hero">
