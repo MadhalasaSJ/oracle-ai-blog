@@ -834,6 +834,21 @@ function toggleMenu() {
 
 </script>
 <body>
+ <body>
+
+<div class="sidebar-menu" id="sidebarMenu">
+
+  <div class="sidebar-header">
+
+    <span class="sidebar-title">
+      all blogs
+    </span>
+
+    <button class="close-btn" onclick="toggleMenu()">
+      ✕
+    </button>
+
+  </div>
 
   <nav class="sidebar-links">
 
@@ -863,7 +878,8 @@ function toggleMenu() {
       Network Encryption
     </a>
 
-    <a href="oracle-object-storage-blog.html" class="active-link">
+    <a href="oracle-object-storage-blog.html"
+       class="active-link">
       Object Storage
     </a>
 
@@ -871,6 +887,11 @@ function toggleMenu() {
 
 </div>
 
+<div
+  class="sidebar-overlay"
+  id="sidebarOverlay"
+  onclick="toggleMenu()">
+</div>
 <div
   class="sidebar-overlay"
   id="sidebarOverlay"
