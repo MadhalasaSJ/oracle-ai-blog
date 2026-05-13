@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Database is Talking. Is Anyone Listening? | Oracle NNE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0d1b2e;
+    --ink-soft: #1e3a5f;
+    --ink-muted: #5b7fa6;
+    --paper: #edf3fa;
+    --paper-mid: #ddeaf7;
+    --paper-card: #ffffff;
+    --violet: #1a56db;
+    --violet-light: #e1ecff;
+    --violet-mid: #2563eb;
+    --lime: #64a6e0;
+    --lime-dark: #1e4f8c;
+    --lime-light: #dbeafe;
+    --coral: #2563eb;
+    --coral-light: #e1ecff;
+    --teal: #0e7490;
+    --teal-light: #cff3fc;
+    --border: rgba(26,86,219,0.13);
+    --border-strong: rgba(26,86,219,0.28);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.75;
+    font-size: 17px;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 5rem 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    right: -8%;
+    width: 520px;
+    height: 520px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(43,108,176,0.2) 0%, transparent 70%);
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -5%;
+    width: 380px;
+    height: 380px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(160,174,192,0.1) 0%, transparent 70%);
+  }
+
+  .hero-inner {
+    max-width: 780px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--lime);
+    border: 1px solid rgba(160,174,192,0.4);
+    background: rgba(160,174,192,0.1);
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+  }
+
+  .hero h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(2.6rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    color: #fff;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.03em;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--lime);
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: rgba(247,245,255,0.6);
+    max-width: 560px;
+    line-height: 1.75;
+    font-weight: 400;
+  }
+
+  .hero-meta {
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-size: 12px;
+    color: rgba(247,245,255,0.4);
+    font-family: 'JetBrains Mono', monospace;
+    flex-wrap: wrap;
+  }
+
+  .hero-meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.06);
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  .hero-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .author-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--violet) 0%, var(--violet-mid) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    color: #fff;
+    font-weight: 700;
+    flex-shrink: 0;
+    border: 2px solid rgba(49,130,206,0.4);
+  }
+
+  .author-info { display: flex; flex-direction: column; gap: 2px; }
+
+  .author-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 0.01em;
+  }
+
+  .author-role {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--lime);
+  }
+
+  /* MAIN CONTENT */
+  .content-wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  /* SECTION */
+  section { padding: 4rem 0; border-bottom: 1px solid var(--border); }
+  section:last-of-type { border-bottom: none; }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--violet);
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 2px;
+    background: var(--violet);
+    border-radius: 2px;
+  }
+
+  h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    color: var(--ink);
+  }
+
+  h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 2rem 0 0.8rem;
+  }
+
+  p { margin-bottom: 1.4rem; color: var(--ink-soft); font-weight: 400; }
+  p:last-child { margin-bottom: 0; }
+
+  /* PULL QUOTE */
+  .pull-quote {
+    border-left: 3px solid var(--violet);
+    padding: 1.4rem 1.8rem;
+    margin: 2.5rem 0;
+    background: var(--violet-light);
+    border-radius: 0 10px 10px 0;
+  }
+
+  .pull-quote p {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.25rem;
+    font-style: italic;
+    color: var(--violet);
+    font-weight: 400;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* INFO CARD */
+  .info-card {
+    background: var(--paper-mid);
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    padding: 1.8rem;
+    margin: 2rem 0;
+    border-top: 3px solid var(--violet);
+  }
+
+  .info-card .card-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--violet);
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: #071224;
+    border-radius: 12px;
+    padding: 1.5rem 1.8rem;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    position: relative;
+    border: 1px solid rgba(43,108,176,0.2);
+    border-top: 2px solid var(--violet);
+  }
+
+  .code-block .code-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--violet-mid);
+    margin-bottom: 0.8rem;
+    opacity: 0.7;
+  }
+
+  .code-block pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.75;
+    color: #bfdbfe;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .code-block .comment { color: rgba(100,166,224,0.4); }
+  .code-block .keyword { color: #7dd3fc; }
+  .code-block .value { color: #a5f3fc; }
+  .code-block .highlight-line {
+    background: rgba(43,108,176,0.15);
+    display: block;
+    margin: 0 -1.8rem;
+    padding: 0 1.8rem;
+    border-left: 2px solid #3182ce;
+  }
+
+  /* OUTPUT BLOCK */
+  .output-block {
+    background: #040d1a;
+    border-radius: 12px;
+    padding: 1.5rem 1.8rem;
+    margin: 1.5rem 0;
+    border: 1px solid rgba(44,122,123,0.18);
+    border-top: 2px solid var(--teal);
+  }
+
+  .output-block .output-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.8;
+  }
+
+  .output-block .output-label::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--teal);
+  }
+
+  .output-block pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: #7a8499;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .output-block .sensitive { color: var(--coral); }
+  .output-block .encrypted { color: var(--teal); }
+  .output-block .normal { color: #555d75; }
+
+  /* COMPARISON TABLE */
+  .comparison {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: 15px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .comparison th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+    padding: 0.9rem 1rem;
+    text-align: left;
+    background: var(--violet);
+    font-weight: 500;
+  }
+
+  .comparison td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink-soft);
+    vertical-align: top;
+  }
+
+  .comparison tr:last-child td { border-bottom: none; }
+  .comparison tr:nth-child(even) td { background: var(--paper-mid); }
+
+  .comparison .row-label {
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 14px;
+    white-space: nowrap;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .tag-yes {
+    display: inline-block;
+    background: var(--teal-light);
+    color: #007d6b;
+    font-size: 12px;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+  }
+
+  .tag-no {
+    display: inline-block;
+    background: var(--lime-light);
+    color: var(--lime-dark);
+    font-size: 12px;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+  }
+
+  /* PARAMETER TABLE */
+  .param-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 1.5rem 0;
+  }
+
+  .param-cell {
+    background: var(--paper-card);
+    padding: 1.3rem 1.4rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--violet-mid);
+  }
+
+  .param-cell.header {
+    border-top-color: var(--violet);
+    background: var(--violet-light);
+  }
+
+  .param-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--violet);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+
+  .param-desc {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    font-weight: 400;
+  }
+
+  /* CALLOUT */
+  .callout {
+    background: #e8f0fe;
+    border: 1px solid rgba(26,86,219,0.2);
+    border-left: 4px solid #1a56db;
+    border-radius: 0 10px 10px 0;
+    padding: 1.4rem 1.6rem;
+    margin: 2rem 0;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .callout-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 3px;
+    color: #1a56db;
+  }
+
+  .callout p {
+    color: #1e3a5f;
+    font-size: 15px;
+    margin: 0;
+    line-height: 1.65;
+  }
+
+  /* SECTION DIVIDER */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 3rem 0;
+    color: var(--ink-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* INLINE CODE */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--violet-light);
+    color: var(--violet);
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-weight: 500;
+  }
+
+  /* SIDEBAR NOTE */
+  .side-note {
+    float: right;
+    width: 220px;
+    margin: 0 0 1.5rem 2rem;
+    background: var(--teal-light);
+    border-radius: 10px;
+    padding: 1.2rem;
+    font-size: 14px;
+    color: #005a4e;
+    line-height: 1.6;
+    clear: right;
+    border: 1px solid rgba(44,122,123,0.2);
+    border-top: 3px solid var(--teal);
+  }
+
+  .side-note strong {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    color: var(--teal);
+  }
+
+/* FOOTER */
+footer {
+  background: #0a1628;
+
+  border-top: 1px solid rgba(255,255,255,0.08);
+
+  padding: 3.5rem 2rem;
+
+  margin-top: 5rem;
+
+  text-align: center;
+}
+
+footer p {
+  color: #94a3b8;
+
+  font-size: 14px;
+
+  line-height: 1.9;
+
+  max-width: 720px;
+
+  margin: 0 auto;
+
+  font-family: 'Inter', sans-serif;
+}
+
+footer a {
+  color: #cbd5e1;
+
+  text-decoration: none;
+
+  font-weight: 500;
+
+  border-bottom: 1px solid rgba(255,255,255,0.18);
+
+  transition: 0.2s ease;
+}
+
+footer a:hover {
+  color: #ffffff;
+
+  border-bottom-color: #ffffff;
+}
+
+  /* VISUAL FLOW DIAGRAM */
+  .flow-diagram {
+    background: #071224;
+    border-radius: 12px;
+    padding: 2.5rem;
+    margin: 2rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    border: 1px solid rgba(26,86,219,0.25);
+  }
+
+  .flow-node {
+    text-align: center;
+    min-width: 130px;
+    flex-shrink: 0;
+  }
+
+  .flow-box {
+    background: rgba(26,86,219,0.12);
+    border: 1px solid rgba(26,86,219,0.35);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    color: rgba(147,197,253,0.9);
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  .flow-label {
+    font-size: 10.5px;
+    color: rgba(255,255,255,0.3);
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .flow-arrow {
+    flex-shrink: 0;
+    padding: 0 1rem;
+    color: var(--lime);
+    font-size: 1.4rem;
+    line-height: 1;
+    margin-bottom: 1.8rem;
+  }
+
+  .flow-encrypted .flow-box {
+    border-color: rgba(14,116,144,0.5);
+    background: rgba(14,116,144,0.1);
+    color: #67e8f9;
+  }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 2rem 0;
+    border-top: 3px solid var(--violet);
+  }
+
+  .highlight-box-header {
+    background: var(--violet);
+    padding: 1rem 1.4rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.9);
+    font-weight: 500;
+  }
+
+  .highlight-box-body {
+    padding: 1.6rem;
+    background: var(--paper-card);
+  }
+
+  @media (max-width: 600px) {
+    .param-grid { grid-template-columns: 1fr; }
+    .side-note { float: none; width: 100%; margin: 1rem 0; }
+    .flow-diagram { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">Database Security / Oracle NNE</div>
+    <h1>Your database is talking.<br><em>Is anyone listening?</em></h1>
+    <p class="hero-sub">
+      Every query, every salary figure, every customer email that travels from your application to Oracle Database passes through a network. Without encryption, that data moves in plain sight. Here's why that matters and how Native Network Encryption changes the picture.
+    </p>
+    <div class="hero-author">
+      <div class="author-avatar">MS</div>
+      <div class="author-info">
+        <div class="author-name">Madhalasa SJ</div>
+        <div class="author-role">Database Security</div>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <span>Oracle Database 19c</span>
+      <span>Native Network Encryption</span>
+      <span>AES256 / SHA512</span>
+    </div>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+  <section>
+    <div class="section-label">The problem</div>
+    <h2>What travels across your network is probably readable</h2>
+
+    <p>
+      Most people think about database security in terms of who can log in and what they can access. That is important, but it only covers half the picture. The other half is what happens to data while it is in motion, traveling from your application across the network to Oracle Database and back again.
+    </p>
+
+    <p>
+      Without encryption, that journey happens in plain text. Anyone with access to the network sitting between your application and your database can read every query, every result set, every row returned. This is not a theoretical risk. It is a straightforward packet capture away from becoming very real.
+    </p>
+
+    <div class="pull-quote">
+      <p>When a query runs against an unencrypted Oracle database, the results travel across the wire as readable text. Names, emails, salaries, addresses. All of it visible to anyone watching the network.</p>
+    </div>
+
+    <p>
+      Oracle Database Native Network Encryption (NNE) is the product built to close this gap. It encrypts all data traveling between Oracle clients and Oracle Database servers at the network layer, using industry-strength algorithms, without requiring any changes to your application code or your client installations.
+    </p>
+
+    <div class="flow-diagram" role="img" aria-label="Data flow showing plaintext vs encrypted traffic between application and Oracle Database">
+      <div class="flow-node">
+        <div class="flow-box">Oracle Client</div>
+        <div class="flow-label">Application side</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node flow-encrypted">
+        <div class="flow-box">AES256 ciphertext</div>
+        <div class="flow-label">Encrypted on wire</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="flow-box">Oracle Database</div>
+        <div class="flow-label">Server side</div>
+      </div>
+    </div>
+
+    <p>
+      NNE is part of Oracle Net Services, the communication layer built into every Oracle Database installation. That means it is already there. You do not need to install anything extra. You just need to configure it.
+    </p>
+  </section>
+
+  <section>
+    <div class="section-label">How the product works</div>
+    <h2>Encryption built into Oracle Net Services</h2>
+
+    <p>
+      Oracle Net Services is the layer that manages every connection between an Oracle client and an Oracle Database server. NNE lives inside this layer, which gives it a key advantage: it protects the full connection from the moment it is established, before any SQL is ever sent.
+    </p>
+
+    <div class="side-note">
+      <strong>Worth knowing</strong>
+      Oracle Database servers and clients default to ACCEPTED mode, meaning encryption turns on automatically the moment either side requests it. You can secure all connections by configuring only the server side.
+    </div>
+
+    <p>
+      When a client connects to an Oracle Database server, the two sides go through a negotiation. Each side advertises which encryption algorithms it supports. The server picks the first algorithm in its list that the client also supports, and that algorithm is used for the entire session. If the server is configured to require encryption and no common algorithm is found, the connection is refused.
+    </p>
+
+    <p>
+      The session key that powers the encryption is generated fresh for every connection using the Diffie-Hellman key agreement algorithm. Diffie-Hellman is a well-proven method that allows two parties to establish a shared secret over an insecure channel without ever transmitting that secret directly. Once both sides have the shared secret, they combine it with the session key to produce the final encryption key. Compromising one session's key reveals nothing about any other session.
+    </p>
+
+    <h3>The Advanced Encryption Standard at the core</h3>
+
+    <p>
+      Oracle NNE uses the Advanced Encryption Standard, known as AES, as its primary encryption algorithm. AES is the Federal Information Processing Standard (FIPS) approved algorithm used by the US government to protect sensitive and classified data. It is the same algorithm at the heart of every serious security product in use today.
+    </p>
+
+    <p>
+      Oracle supports three AES key lengths: 128-bit, 192-bit, and 256-bit. All three operate in outer Cipher Block Chaining mode, which means each encrypted block depends on all blocks that came before it. This design makes block replay attacks, where an attacker captures and retransmits encrypted blocks to manipulate the session, computationally infeasible.
+    </p>
+
+    <div class="info-card">
+      <div class="card-title">AES key lengths in Oracle NNE</div>
+      <p style="font-size:15px; margin-bottom: 1rem;">
+        AES128 provides solid protection and has the lowest performance overhead. AES192 is a middle ground. AES256 uses a 256-bit key and is the strongest option available. For any new deployment, AES256 is the right choice. Oracle recommends listing it first in your configuration so it takes priority during algorithm negotiation.
+      </p>
+      <p style="font-size:15px; margin:0;">
+        All AES variants in Oracle NNE are FIPS 140-2 compliant, which is a requirement in regulated industries including healthcare, finance, and federal government.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">Data integrity</div>
+    <h2>Encryption alone is not the whole story</h2>
+
+    <p>
+      Encrypting network traffic means an attacker cannot read what is being transferred. But Oracle NNE goes a step further and also protects against something encryption cannot handle on its own: data modification in transit.
+    </p>
+
+    <p>
+      Oracle's documentation describes two specific attack types that NNE's data integrity feature is designed to prevent. A data modification attack is when someone intercepts traffic, changes the contents, and retransmits it. Think of a database update carrying a $100 transaction that gets intercepted and altered to $10,000. A replay attack is when a valid packet is captured and retransmitted repeatedly. A $100 bank withdrawal that gets replayed ten times becomes a $1,000 loss.
+    </p>
+
+    <p>
+      NNE addresses both of these by computing a cryptographic checksum over every message before it is sent. The receiving side recomputes the checksum independently and compares. If a single byte was changed during transit, the checksums will not match and the problem is detected immediately.
+    </p>
+
+    <div class="callout">
+      <div class="callout-icon">◆</div>
+      <p>
+        Data integrity in NNE operates completely independently from encryption. You can configure checksumming without enabling encryption, or turn on encryption without checksumming. In production environments, enabling both together gives you the most complete protection.
+      </p>
+    </div>
+
+    <p>
+      Oracle supports SHA-256, SHA-384, and SHA-512 for checksumming. These are the SHA-2 family of hash functions and Oracle recommends them for all deployments. SHA-1 and MD5 are still present in the product for backward compatibility with older systems but Oracle has deprecated them. Dedicated attacks against MD5 and SHA-1 are practical on modern hardware, so there is no good reason to use them in a fresh configuration.
+    </p>
+  </section>
+
+  <section>
+    <div class="section-label">Configuration</div>
+    <h2>Four settings that control the entire product</h2>
+
+    <p>
+      The full configuration for Oracle NNE lives in a single file called <code>sqlnet.ora</code>, located in your Oracle Net Services configuration directory. This file controls behavior on both the server and client sides independently. There is no GUI required, no service to deploy, and no restart of the database itself in most cases.
+    </p>
+
+    <p>
+      Oracle gives you four possible values for each encryption and checksum parameter. They represent how strongly each side of a connection wants or insists on protection.
+    </p>
+
+    <div class="param-grid">
+      <div class="param-cell header">
+        <div class="param-name">REJECTED</div>
+        <div class="param-desc">This side refuses to encrypt, even if the other side requires it. If the other side is REQUIRED, the connection fails.</div>
+      </div>
+      <div class="param-cell header">
+        <div class="param-name">ACCEPTED</div>
+        <div class="param-desc">This side will encrypt if the other side wants it, but will not initiate it. This is the out-of-the-box default for both server and client.</div>
+      </div>
+      <div class="param-cell">
+        <div class="param-name">REQUESTED</div>
+        <div class="param-desc">This side wants encryption and will initiate it. But if the other side cannot do it, the connection continues unencrypted rather than failing.</div>
+      </div>
+      <div class="param-cell">
+        <div class="param-name">REQUIRED</div>
+        <div class="param-desc">This side demands encryption. If the other side cannot or will not encrypt, the connection is refused entirely.</div>
+      </div>
+    </div>
+
+    <p>
+      The practical path for rolling out NNE in a production environment is to start with REQUESTED on the server. This immediately enables encryption for every client that supports it, which is essentially every modern Oracle client, while still allowing any legacy clients that do not to keep working. Once you have confirmed that everything is running correctly, you move to REQUIRED, which closes the door on any unencrypted connection.
+    </p>
+
+    <p>
+      Because Oracle clients and servers both default to ACCEPTED, setting the server to REQUESTED is enough to turn on encryption for your entire fleet of Oracle clients without touching a single client machine. That is a meaningful operational advantage compared to alternatives that require per-client certificate management.
+    </p>
+
+    <div class="code-block">
+      <div class="code-label">sqlnet.ora — server configuration</div>
+      <pre><span class="comment">-- File location: $ORACLE_HOME/network/admin/sqlnet.ora</span>
+
+<span class="highlight-line"><span class="keyword">SQLNET.ENCRYPTION_SERVER</span> = <span class="value">REQUESTED</span></span>
+<span class="keyword">SQLNET.ENCRYPTION_TYPES_SERVER</span> = (<span class="value">AES256</span>, <span class="value">AES192</span>, <span class="value">AES128</span>)
+
+<span class="highlight-line"><span class="keyword">SQLNET.CRYPTO_CHECKSUM_SERVER</span> = <span class="value">REQUIRED</span></span>
+<span class="keyword">SQLNET.CRYPTO_CHECKSUM_TYPES_SERVER</span> = (<span class="value">SHA512</span>)</pre>
+    </div>
+
+    <p>
+      After applying the configuration, you can confirm that encryption is active by querying the network service banner for any active session. An encrypted session shows additional rows in the output that were not there before.
+    </p>
+
+    <div class="output-block">
+      <div class="output-label">Session encryption check output</div>
+      <pre><span class="normal"> SID  USERNAME    AUTH_TYPE   NETWORK_SERVICE_BANNER
+</span><span class="normal"> ---  ----------  ----------  -----------------------------------------------
+</span><span class="normal"> 715  SYSTEM      DATABASE    TCP/IP NT Protocol Adapter for Linux
+</span><span class="encrypted"> 715  SYSTEM      DATABASE    AES256 Encryption service adapter for Linux
+</span><span class="encrypted"> 715  SYSTEM      DATABASE    Crypto-checksumming service for Linux
+</span></pre>
+    </div>
+
+    <p>
+      The presence of the AES256 Encryption service adapter row confirms the session is fully encrypted. Before NNE is enabled, only the plain TCP/IP adapter row appears. After enabling it, both the encryption and checksumming rows show up alongside it.
+    </p>
+  </section>
+
+  <section>
+    <div class="section-label">What it actually protects</div>
+    <h2>The difference between encrypted and unencrypted traffic</h2>
+
+    <p>
+      The most concrete way to understand what Oracle NNE does is to look at what network traffic actually contains when the product is off versus when it is on.
+    </p>
+
+    <p>
+      Without encryption, a packet capture of Oracle SQL Net traffic running against a table like DEMO_HR_EMPLOYEES will yield full, readable data. Names, email addresses in recognizable formats, salary figures, physical addresses. Every row the database returns passes across the network in a form anyone can read.
+    </p>
+
+    <div class="output-block">
+      <div class="output-label">Network packet extract — NNE off</div>
+      <pre><span class="sensitive">Teresa.Lane@oracledemo.com
+Teresa.Morales@oracledemo.com
+Timothy.Fox@oracledemo.com
+Timothy.Green@oracledemo.com
+Tina.Alexander@oracledemo.com
+Todd.Adams@oracledemo.com</span>
+<span class="normal">... over 1000 rows readable from captured packets</span></pre>
+    </div>
+
+    <p>
+      With NNE turned on using SQLNET.ENCRYPTION_SERVER = REQUESTED, the same packet capture produces nothing useful. The ciphertext bears no relationship to the underlying data.
+    </p>
+
+    <div class="output-block">
+      <div class="output-label">Network packet extract — NNE on</div>
+      <pre><span class="encrypted">.@
+oo7@
+1q#@
+2@.c
+5qT@
+Xq@Y
+cbx@
+ck!0tr
+F@FI
+@FY0
+!dk@</span>
+<span class="normal">Result: zero readable rows from 1000 row query</span></pre>
+    </div>
+
+    <p>
+      The application received its data correctly. The database ran the query normally. The connection worked exactly as before. The only thing that changed is what the network saw, and what the network saw is now completely opaque.
+    </p>
+
+    <p>
+      This protection extends to the Glassfish application layer and JDBC thin client connections as well. Oracle NNE works at the Oracle Net Services level, which means it covers any client that uses Oracle's networking stack, including JDBC thin clients used by Java applications, regardless of whether those clients are configured individually.
+    </p>
+
+    <div class="callout">
+      <div class="callout-icon">◆</div>
+      <p>
+        Connection pool behavior is worth planning around. Applications that create a new connection per query, like many Java web applications using JDBC thin client, pick up the new encryption settings immediately. Applications with long-lived persistent connection pools may need a restart to establish new encrypted connections under the updated configuration.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">NNE vs TLS</div>
+    <h2>Oracle gives you two paths to network encryption</h2>
+
+    <p>
+      Oracle SQL Net traffic can be encrypted in two different ways. The first is Native Network Encryption, the Oracle-proprietary approach we have been discussing. The second is Transport Layer Security, or TLS, which is the industry-standard protocol used everywhere from web browsers to financial systems.
+    </p>
+
+    <p>
+      Both encrypt data in motion. But they differ significantly in setup complexity, operational overhead, and what additional security properties they provide.
+    </p>
+
+    <table class="comparison">
+      <thead>
+        <tr>
+          <th>Consideration</th>
+          <th>Native Network Encryption</th>
+          <th>Transport Layer Security</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-label">Setup</td>
+          <td>Edit sqlnet.ora on the server</td>
+          <td>Requires certificates on server and each client</td>
+        </tr>
+        <tr>
+          <td class="row-label">Client changes required</td>
+          <td><span class="tag-no">Usually none</span></td>
+          <td><span class="tag-yes">Yes, every client</span></td>
+        </tr>
+        <tr>
+          <td class="row-label">Certificate management</td>
+          <td><span class="tag-no">Not needed</span></td>
+          <td><span class="tag-yes">Required, certificates expire</span></td>
+        </tr>
+        <tr>
+          <td class="row-label">Protocol type</td>
+          <td>Oracle proprietary</td>
+          <td>Industry standard</td>
+        </tr>
+        <tr>
+          <td class="row-label">Server authentication</td>
+          <td>Not included</td>
+          <td>Yes, prevents impersonation attacks</td>
+        </tr>
+        <tr>
+          <td class="row-label">Can be used for DB user authentication</td>
+          <td>No</td>
+          <td>Yes</td>
+        </tr>
+        <tr>
+          <td class="row-label">Ideal for</td>
+          <td>Internal Oracle environments, rapid rollout</td>
+          <td>Internet-facing systems, compliance-mandated deployments</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      NNE is the right choice for most internal Oracle environments. It takes minutes to configure, requires no certificate infrastructure, and handles the client side automatically because Oracle clients default to accepting encrypted connections. TLS becomes the better choice when your environment requires server authentication as a protection against impersonation attacks, or when a compliance framework explicitly mandates a standard protocol like TLS over a proprietary one.
+    </p>
+
+    <p>
+      Oracle also supports running both at the same time. If some database users connect over TCP with password authentication while others connect over TCPS with TLS certificates, the <code>IGNORE_ANO_ENCRYPTION_FOR_TCPS</code> parameter lets the database handle both connection types concurrently without conflict.
+    </p>
+  </section>
+
+  <section>
+    <div class="section-label">Algorithm hygiene</div>
+    <h2>Strong configuration means more than just turning it on</h2>
+
+    <p>
+      Enabling NNE is the first step. Making sure you are using strong algorithms is the second. Oracle has deprecated DES, 3DES, RC4, and MD5 in the current release. These algorithms are still present in the product for backward compatibility with very old client versions, but they should not be part of any new configuration. They have known weaknesses and practical attacks exist against several of them.
+    </p>
+
+    <p>
+      Oracle released a security patch, documented in My Oracle Support note 2118136.2, that strengthens the NNE implementation and adds two parameters that give administrators control over whether weak algorithms are allowed at all. Once this patch is applied and your clients are updated, you can set those parameters to ensure no connection can fall back to a weak algorithm regardless of what a client requests.
+    </p>
+
+    <div class="code-block">
+      <div class="code-label">Maximum security configuration in sqlnet.ora</div>
+      <pre><span class="comment">-- Server: require AES256 and block weak crypto from any client</span>
+<span class="keyword">SQLNET.ENCRYPTION_SERVER</span>             = <span class="value">REQUIRED</span>
+<span class="keyword">SQLNET.ENCRYPTION_TYPES_SERVER</span>       = (<span class="value">AES256</span>)
+<span class="keyword">SQLNET.CRYPTO_CHECKSUM_SERVER</span>        = <span class="value">REQUIRED</span>
+<span class="keyword">SQLNET.CRYPTO_CHECKSUM_TYPES_SERVER</span>  = (<span class="value">SHA512</span>)
+<span class="highlight-line"><span class="keyword">SQLNET.ALLOW_WEAK_CRYPTO_CLIENTS</span>     = <span class="value">FALSE</span></span>
+
+<span class="comment">-- Client: mirror the server and block weak crypto to any server</span>
+<span class="keyword">SQLNET.ENCRYPTION_CLIENT</span>             = <span class="value">REQUIRED</span>
+<span class="keyword">SQLNET.ENCRYPTION_TYPES_CLIENT</span>       = (<span class="value">AES256</span>)
+<span class="keyword">SQLNET.CRYPTO_CHECKSUM_CLIENT</span>        = <span class="value">REQUIRED</span>
+<span class="keyword">SQLNET.CRYPTO_CHECKSUM_TYPES_CLIENT</span>  = (<span class="value">SHA512</span>)
+<span class="highlight-line"><span class="keyword">SQLNET.ALLOW_WEAK_CRYPTO</span>             = <span class="value">FALSE</span></span></pre>
+    </div>
+
+    <p>
+      The <code>ALLOW_WEAK_CRYPTO = FALSE</code> setting is what turns the algorithm restriction from a preference into an enforcement. Without it, a client could potentially negotiate the session down to a weaker algorithm even if you listed only strong ones. With it set to false on both sides, any attempt to use a deprecated algorithm produces an ORA-12269 error at the server or an ORA-12268 error at the client, and the connection is refused.
+    </p>
+
+    <div class="callout">
+      <div class="callout-icon">◆</div>
+      <p>
+        Sequence matters here. Update all clients before setting ALLOW_WEAK_CRYPTO_CLIENTS to FALSE on the server. If you enforce it server-side before clients are patched, those unpatched clients will lose database connectivity immediately with an ORA-12268 error. Patch clients first, then harden the server.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">Bottom line</div>
+    <h2>A product that is genuinely simple to deploy and genuinely important</h2>
+
+    <p>
+      Oracle Database Native Network Encryption is one of those security features that looks more complicated than it is. The underlying technology, AES encryption and SHA-2 checksumming over a Diffie-Hellman negotiated session key, is serious cryptography. But the operational experience of turning it on is as simple as editing a text file.
+    </p>
+
+    <p>
+      What it gives you in return is significant. Every query, every result set, every login credential, every data packet traveling between your Oracle applications and your Oracle Database becomes unreadable to anyone intercepting the network. The encryption is transparent to your application. Your SQL does not change. Your connection strings do not change. Your users do not notice anything different. The only thing that changes is that the wire is now protected.
+    </p>
+
+    <div class="pull-quote">
+      <p>Having database authentication in place but leaving network traffic unencrypted is like putting a lock on your door while leaving the windows open. Both matter.</p>
+    </div>
+
+    <p>
+      Oracle Database 19c ships with NNE already built in. The server and clients default to ACCEPTED mode, which means encryption can be turned on for your entire Oracle client fleet by changing a single parameter on the server side. No agents to deploy, no certificates to issue, no application code to touch.
+    </p>
+
+    <div class="highlight-box">
+      <div class="highlight-box-header">Quick reference for a production rollout</div>
+      <div class="highlight-box-body">
+        <p style="font-size:15px; margin-bottom: 0.8rem; color: var(--ink);">1. Set <code>SQLNET.ENCRYPTION_SERVER = REQUESTED</code> in the server sqlnet.ora. This immediately enables AES encryption for all connecting Oracle clients without requiring any client-side changes.</p>
+        <p style="font-size:15px; margin-bottom: 0.8rem; color: var(--ink);">2. Add <code>SQLNET.ENCRYPTION_TYPES_SERVER = (AES256)</code> to ensure the strongest algorithm is selected during negotiation.</p>
+        <p style="font-size:15px; margin-bottom: 0.8rem; color: var(--ink);">3. Enable checksumming with <code>SQLNET.CRYPTO_CHECKSUM_SERVER = REQUIRED</code> and <code>SQLNET.CRYPTO_CHECKSUM_TYPES_SERVER = (SHA512)</code> to add data integrity protection on top of encryption.</p>
+        <p style="font-size:15px; margin-bottom: 0.8rem; color: var(--ink);">4. Verify by checking the network service banner on an active session. Look for the AES256 Encryption service adapter row.</p>
+        <p style="font-size:15px; margin-bottom: 0; color: var(--ink);">5. Once confirmed, step up to REQUIRED and apply Oracle patch 2118136.2 to block weak algorithm fallback entirely.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <p>Written based on Oracle Database 19c official documentation.<br>
+  Reference: <a href="https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-network-data-encryption-and-integrity.html" target="_blank">Oracle Database Security Guide: Native Network Encryption</a></p>
+</footer>
+
+</body>
+</html>
