@@ -701,6 +701,121 @@
   .hero-inner > *:nth-child(2) { animation-delay: 0.18s; }
   .hero-inner > *:nth-child(3) { animation-delay: 0.3s; }
   .hero-inner > *:nth-child(4) { animation-delay: 0.42s; }
+
+ /* SIDEBAR */
+
+.sidebar-menu {
+  position: fixed;
+
+  top: 0;
+  left: -320px;
+
+  width: 290px;
+  height: 100vh;
+
+  padding: 28px 24px;
+
+  background: rgba(8,17,13,0.72);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border-right: 1px solid rgba(255,255,255,0.08);
+
+  z-index: 1200;
+
+  transition: left 0.24s ease;
+}
+
+.sidebar-menu.active {
+  left: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 28px;
+}
+
+.sidebar-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+
+  color: var(--white);
+
+  opacity: 0.6;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+
+  color: var(--white);
+
+  font-size: 1rem;
+
+  cursor: pointer;
+}
+
+.sidebar-links {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-links a {
+  color: rgba(255,255,255,0.82);
+
+  text-decoration: none;
+
+  font-size: 0.92rem;
+  font-weight: 500;
+
+  padding: 14px 0;
+
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+
+  transition:
+    color 0.16s ease,
+    transform 0.16s ease,
+    opacity 0.16s ease;
+}
+
+.sidebar-links a:hover {
+  color: var(--accent);
+
+  transform: translateX(4px);
+
+  opacity: 1;
+}
+
+.active-link {
+  color: var(--accent) !important;
+  opacity: 1 !important;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0,0,0,0.38);
+
+  opacity: 0;
+  visibility: hidden;
+
+  transition: 0.2s ease;
+
+  z-index: 1100;
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
 </style>
 </head>
 <script>
@@ -719,19 +834,6 @@ function toggleMenu() {
 
 </script>
 <body>
-<div class="sidebar-menu" id="sidebarMenu">
-
-  <div class="sidebar-header">
-
-    <span class="sidebar-title">
-      all blogs
-    </span>
-
-    <button class="close-btn" onclick="toggleMenu()">
-      ✕
-    </button>
-
-  </div>
 
   <nav class="sidebar-links">
 
