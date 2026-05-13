@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Everything You Need to Know About Oracle Object Storage</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+  --bg:        #08110d;
+  --surface:   #101915;
+  --surface2:  #16241d;
+  --border:    #284236;
+  --accent:    #10b981;
+  --accent2:   #60a5fa;
+  --green:     #34d399;
+  --text:      #dcefe5;
+  --text-dim:  #8ba89b;
+  --text-muted: #587061;
+  --white:     #f5fff9;
+}
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.8;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    padding: 0 48px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,15,30,0.92);
+    backdrop-filter: blur(12px);
+  }
+    .topbar-brand {
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--accent);
+    opacity: 0.92;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .topbar-tag {
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 100px;
+  }
+    /* LEFT SIDE */
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    min-width: 0;
+  }
+
+  /* MENU BUTTON */
+
+  .menu-btn {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(255,255,255,0.03);
+
+    border: 1px solid rgba(255,255,255,0.06);
+
+    border-radius: 10px;
+
+    color: var(--white);
+
+    font-size: 0.9rem;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+      background 0.18s ease,
+      border-color 0.18s ease,
+      transform 0.18s ease;
+
+    backdrop-filter: blur(10px);
+  }
+
+  .menu-btn:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.12);
+    transform: translateY(-1px);
+  }
+
+  /* HERO */
+  .hero {
+    padding: 100px 48px 88px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 15% 30%, rgba(79,142,247,0.08) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 50% at 85% 70%, rgba(224,107,63,0.06) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .hero-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 56px 56px;
+    opacity: 0.18;
+    pointer-events: none;
+  }
+  .hero-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .hero-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .eyebrow-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
+  .eyebrow-text {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .hero h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--white);
+    margin-bottom: 24px;
+    max-width: 760px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1rem;
+    color: var(--text-dim);
+    max-width: 540px;
+    margin-bottom: 48px;
+    font-weight: 400;
+    line-height: 1.75;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .avatar {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), #2256b8);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .byline-info { font-size: 0.82rem; }
+  .byline-name { color: var(--white); font-weight: 600; }
+  .byline-meta { color: var(--text-dim); margin-top: 1px; }
+  .byline-pipe {
+    width: 1px; height: 28px;
+    background: var(--border);
+  }
+  .byline-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* PROGRESS BAR */
+  .reading-bar {
+    position: fixed;
+    top: 55px; left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    z-index: 200;
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+
+  /* ARTICLE */
+    .article-wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 0 32px 120px;
+  }
+
+
+    @media (max-width: 760px) {
+
+    .article-wrap {
+      padding: 0 20px 80px;
+    }
+
+    .hero {
+      padding: 64px 20px 56px;
+    }
+
+    .topbar {
+      padding: 0 20px;
+    }
+  }
+
+  /* BODY COPY */
+  .article p {
+    color: var(--text);
+    margin-bottom: 22px;
+    font-size: 0.97rem;
+    line-height: 1.85;
+    font-weight: 400;
+  }
+  .article p:last-child { margin-bottom: 0; }
+
+  .lead-para {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.18rem;
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.7;
+    margin-bottom: 48px;
+    padding: 24px 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+  }
+
+  h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.85rem;
+    font-weight: 400;
+    color: var(--white);
+    margin-top: 84px;
+    margin-bottom: 18px;
+    line-height: 1.2;
+    scroll-margin-top: 80px;
+  }
+  h3 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-top: 40px;
+    margin-bottom: 12px;
+  }
+
+  strong { color: var(--white); font-weight: 600; }
+  em { color: var(--text); font-style: italic; }
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { color: #7fb3ff; }
+
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8em;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 2px 7px;
+    border-radius: 4px;
+    color: var(--green);
+  }
+
+  mark {
+    background: rgba(79,142,247,0.18);
+    color: var(--white);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* CALLOUT */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    border-radius: 0 8px 8px 0;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 0.91rem;
+  }
+  .callout-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 8px;
+  }
+  .callout p { margin: 0; color: var(--text-dim); font-size: 0.91rem; }
+  .callout.warn { border-left-color: var(--accent2); }
+  .callout.warn .callout-label { color: var(--accent2); }
+
+  /* TIER CARDS */
+  .tier-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 28px 0;
+  }
+  @media(max-width:520px){ .tier-grid { grid-template-columns: 1fr; } }
+
+  .tier-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .tier-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .tier-card.standard::after { background: var(--accent); }
+  .tier-card.archive::after  { background: var(--green); }
+
+  .tier-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .tier-card.standard .tier-badge { color: var(--accent); }
+  .tier-card.archive  .tier-badge { color: var(--green); }
+
+  .tier-card h4 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    margin-bottom: 10px;
+    color: var(--white);
+  }
+  .tier-card p {
+    font-size: 0.86rem;
+    line-height: 1.65;
+    margin: 0;
+    color: var(--text-dim);
+  }
+
+ /* =========================
+   BENTO EDITORIAL GRID
+========================= */
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+  margin: 40px 0;
+}
+
+/* =========================
+   CARD BASE
+========================= */
+
+.bento-card {
+  position: relative;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(18, 37, 44, 0.96) 0%,
+      rgba(7, 18, 22, 0.98) 100%
+    );
+
+  border: 1px solid var(--border);
+  border-radius: 18px;
+
+  padding: 24px;
+
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+/* GLOW OVERLAY */
+.bento-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(20,184,166,0.10),
+      transparent 55%
+    );
+
+  pointer-events: none;
+}
+
+/* VARIATIONS */
+.bento-card:nth-child(2)::before {
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(59,130,246,0.10),
+      transparent 55%
+    );
+}
+
+.bento-card:nth-child(4)::before {
+  background:
+    radial-gradient(
+      circle at bottom left,
+      rgba(16,185,129,0.10),
+      transparent 55%
+    );
+}
+
+.bento-card:nth-child(6)::before {
+  background:
+    radial-gradient(
+      circle at center right,
+      rgba(245,158,11,0.08),
+      transparent 55%
+    );
+}
+
+/* HOVER */
+.bento-card:hover {
+  transform: translateY(-3px);
+
+  border-color: var(--accent);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.25),
+    0 0 20px rgba(20,184,166,0.08);
+}
+
+/* =========================
+   TYPOGRAPHY
+========================= */
+
+.bento-label {
+  display: inline-block;
+
+  font-size: 0.62rem;
+  font-weight: 700;
+
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+
+  color: var(--accent);
+
+  margin-bottom: 14px;
+}
+
+.bento-card h3 {
+  font-family: 'Instrument Serif', serif;
+
+  font-size: 1.35rem;
+  font-weight: 400;
+
+  color: var(--white);
+
+  line-height: 1.15;
+
+  margin-bottom: 12px;
+
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.bento-card p {
+  margin: 0;
+
+  font-size: 0.92rem;
+  line-height: 1.6;
+
+  color: var(--text-dim);
+
+  max-width: 95%;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+
+.large {
+  grid-column: span 3;
+  min-height: 220px;
+}
+
+.small {
+  grid-column: span 3;
+  min-height: 180px;
+}
+
+.half {
+  grid-column: span 3;
+  min-height: 180px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 760px) {
+
+  .bento-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .large,
+  .small,
+  .half {
+    grid-column: span 1;
+    min-height: auto;
+  }
+
+  .bento-card {
+    padding: 22px;
+  }
+
+  .bento-card h3 {
+    font-size: 1.2rem;
+  }
+
+  .bento-card p {
+    max-width: 100%;
+  }
+}
+  /* POLICY BLOCK */
+  .policy-block {
+    margin: 28px 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 0.87rem;
+  }
+  .pb-header {
+    background: var(--surface2);
+    padding: 10px 16px;
+    font-size: 0.65rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 700;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .policy-row {
+    display: grid;
+    grid-template-columns: 165px 1fr;
+    border-top: 1px solid var(--border);
+  }
+  .policy-row .key {
+    padding: 11px 16px;
+    background: var(--surface);
+    font-weight: 600;
+    color: var(--text);
+    border-right: 1px solid var(--border);
+    font-size: 0.82rem;
+  }
+  .policy-row .val {
+    padding: 11px 16px;
+    color: var(--text-dim);
+  }
+  @media(max-width:500px){
+    .policy-row { grid-template-columns: 1fr; }
+    .policy-row .key { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+
+  /* DIVIDER */
+  hr.divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 56px 0 0;
+  }
+
+  /* CLOSING */
+  .closing {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 72px 48px;
+  }
+  .closing-inner {
+    max-width: 560px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .closing h3 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--white);
+    margin-bottom: 14px;
+    line-height: 1.2;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--white);
+  }
+  .closing p {
+    color: var(--text-dim);
+    font-size: 0.94rem;
+    margin-bottom: 32px;
+  }
+  .cta-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 11px 24px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.18s;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #3a7ae0; color: #fff; }
+  .btn-secondary { border: 1px solid var(--border); color: var(--text-dim); background: transparent; }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .page-footer {
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    text-align: center;
+    padding: 18px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.06em;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero-inner > * {
+    animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both;
+  }
+  .hero-inner > *:nth-child(1) { animation-delay: 0.05s; }
+  .hero-inner > *:nth-child(2) { animation-delay: 0.18s; }
+  .hero-inner > *:nth-child(3) { animation-delay: 0.3s; }
+  .hero-inner > *:nth-child(4) { animation-delay: 0.42s; }
+</style>
+</head>
+<script>
+
+function toggleMenu() {
+
+  document
+    .getElementById('sidebarMenu')
+    .classList.toggle('active');
+
+  document
+    .getElementById('sidebarOverlay')
+    .classList.toggle('active');
+
+}
+
+</script>
+<body>
+<div class="sidebar-menu" id="sidebarMenu">
+
+  <div class="sidebar-header">
+
+    <span class="sidebar-title">
+      all blogs
+    </span>
+
+    <button class="close-btn" onclick="toggleMenu()">
+      ✕
+    </button>
+
+  </div>
+
+  <nav class="sidebar-links">
+
+    <a href="index.html">Home</a>
+
+    <a href="oci_gen_ai.html">
+      Oracle AI
+    </a>
+
+    <a href="oracle-nosql.html">
+      Oracle NoSQL
+    </a>
+
+    <a href="spatiotemporal-fraud-detection-blog.html">
+      Fraud Detection
+    </a>
+
+    <a href="oracle_graph_studio_blog.html">
+      Graph Studio
+    </a>
+
+    <a href="oracle_database_vault_blog.html">
+      Oracle Database Vault
+    </a>
+
+    <a href="oracle-nne-blog.html">
+      Network Encryption
+    </a>
+
+    <a href="oracle-object-storage-blog.html" class="active-link">
+      Object Storage
+    </a>
+
+  </nav>
+
+</div>
+
+<div
+  class="sidebar-overlay"
+  id="sidebarOverlay"
+  onclick="toggleMenu()">
+</div>
+<header class="topbar">
+
+  <div class="topbar-left">
+
+    <button class="menu-btn" onclick="toggleMenu()">
+      ☰
+    </button>
+
+    <span class="topbar-brand">
+      keeping bytes somewhere in the sky
+    </span>
+
+  </div>
+
+  <div class="topbar-right">
+    <span class="topbar-tag">
+      Oracle Cloud · Storage
+    </span>
+  </div>
+
+</header>
+
+<!-- SIDEBAR -->
+
+<div class="sidebar-menu" id="sidebarMenu">
+
+  <div class="sidebar-header">
+
+    <span class="sidebar-title">
+      all blogs
+    </span>
+
+    <button class="close-btn" onclick="toggleMenu()">
+      ✕
+    </button>
+
+  </div>
+
+</div>
+
+
+<section class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">
+      <div class="eyebrow-dot"></div>
+      <span class="eyebrow-text">Oracle Cloud Infrastructure · Object Storage</span>
+    </div>
+    <h1>Everything You Need to Know About <em>Oracle Object Storage</em></h1>
+    <p class="hero-sub">What buckets really are, how IAM plugs into everything, and the features most people only discover when they actually need them.</p>
+    <div class="byline">
+      <div class="avatar">M</div>
+      <div class="byline-info">
+        <div class="byline-name">Madhalasa SJ</div>
+        <div class="byline-meta">Cloud Explorer</div>
+      </div>
+      <div class="byline-pipe"></div>
+      <span class="byline-date">May 13, 2026 · 7 min read</span>
+    </div>
+  </div>
+</section>
+
+<div class="article-wrap">
+
+  <main class="article">
+
+    <p class="lead-para">
+      Object Storage is one of those OCI services that sounds simpler than it is. On the surface: buckets, objects, upload, done. But there is real depth in how it handles security, data durability, access patterns, and automation, and that depth is what makes it genuinely useful beyond the "I just need somewhere to dump files" use case.
+    </p>
+
+    <p>
+      This is not a tutorial walkthrough. It is an explanation of the product itself, what it is actually doing, what decisions you need to make when you use it, and where the edge cases hide. Everything here is pulled from the <a href="https://docs.oracle.com/en-us/iaas/Content/Object/Tasks/managingbuckets.htm" target="_blank">official Oracle documentation</a> with extra context filled in where the docs sometimes gloss over things.
+    </p>
+
+    <h2 id="what-is-it">What Object Storage Actually Is</h2>
+
+    <p>
+      Oracle Object Storage is a regional, internet-scale service for storing unstructured data. Files, images, backups, logs, video, raw datasets, anything you can put in a file. The key word there is <em>regional</em>: every bucket you create lives in a specific OCI region, and that is where your data physically sits. It is not replicated globally by default. If you need copies in multiple regions, you set that up explicitly using a replication policy.
+    </p>
+
+    <p>
+      The service is structured around a three-level hierarchy: <strong>namespace, bucket, object</strong>. Your namespace is the top-level identifier that OCI assigns to your tenancy. It is unique, system-generated, and shared across all compartments within a region. You cannot change it, and you will see it in every API endpoint and pre-authenticated URL you ever generate. Below that sit your buckets, and inside buckets live your objects.
+    </p>
+
+    <div class="callout">
+      <p class="callout-label">One hard constraint worth knowing early</p>
+      <p>Buckets cannot be nested. You cannot put a bucket inside a bucket. The hierarchy is flat: namespace, then buckets, then objects. If you need a folder-like structure inside a bucket, you do it by convention using <code>/</code> characters in object names to simulate paths, though Object Storage itself does not treat those as real directories.</p>
+    </div>
+
+    <h2 id="buckets">Buckets: What You Are Configuring and Why It Matters</h2>
+
+    <p>
+      When you create a bucket, you are locking in a few decisions that you will not be able to change later. The most consequential ones are the storage tier and encryption key. Understanding these upfront saves you from having to delete and recreate buckets later.
+    </p>
+
+    <h3>Naming</h3>
+    <p>
+      OCI auto-generates bucket names in a format like <code>bucket-20260513-1034</code>. You can rename these, but the rules are stricter than they look: 1 to 256 characters, letters, numbers, hyphens, underscores, and periods only. The thing that trips people up is that <mark>bucket names are case-sensitive</mark>. Oracle treats <code>media-assets</code> and <code>Media-Assets</code> as two completely different buckets. If you are building any kind of automation that references bucket names, standardize your naming convention from the very beginning.
+    </p>
+
+    <h2 id="tiers">Storage Tier</h2>
+    <p>
+      Every bucket has a default storage tier, and every object you upload into that bucket inherits it. The tier is set at bucket creation and cannot be changed afterward, so pick carefully.
+    </p>
+
+    <div class="tier-grid">
+      <div class="tier-card standard">
+        <span class="tier-badge">Standard Tier</span>
+        <h4>Fast and frequent access</h4>
+        <p>Full-speed read/write, no retrieval delay, no minimum storage period. This is the default tier and the right choice for active data, anything you are reading or writing more than a few times a month.</p>
+      </div>
+      <div class="tier-card archive">
+        <span class="tier-badge">Archive Tier</span>
+        <h4>Long-term, infrequent access</h4>
+        <p>Substantially cheaper per GB, but objects must be explicitly restored before you can download them. Designed for data you are keeping for compliance or disaster recovery but do not expect to touch regularly. A minimum storage period of 90 days applies.</p>
+      </div>
+    </div>
+
+    <p>
+      If you have active data that ages into cold data over time, say application logs that you need for a month and then archive for 12 months, OCI's <strong>Auto-Tiering</strong> feature handles this automatically. You enable it on a Standard tier bucket and OCI will move objects to Archive tier once they have not been accessed for 30 days. You can also configure this manually using <strong>lifecycle policies</strong> if you want more control over timing and conditions.
+    </p>
+
+    <h2 id="security">Security and Access Control</h2>
+
+    <p>
+      Object Storage does not have its own access control system. Security runs through OCI's <strong>Identity and Access Management (IAM)</strong>, the same policy engine that controls everything else in OCI. If you are already familiar with IAM, this will feel natural. If you are not, this is the part that trips up most beginners.
+    </p>
+
+    <p>
+      Every operation on a bucket or its objects, creating, reading, writing, deleting, requires the user or service to be a member of a group that has an IAM policy granting the corresponding permission. The policy that covers full bucket and object management looks like this:
+    </p>
+
+    <div class="policy-block">
+      <div class="pb-header">IAM Policy Reference</div>
+      <div class="policy-row">
+        <div class="key">Create bucket</div>
+        <div class="val"><code>BUCKET_CREATE</code> permission required</div>
+      </div>
+      <div class="policy-row">
+        <div class="key">Change visibility</div>
+        <div class="val"><code>BUCKET_UPDATE</code> permission required</div>
+      </div>
+      <div class="policy-row">
+        <div class="key">Full admin access</div>
+        <div class="val"><code>Allow group ObjectAdmins to manage object-family in tenancy</code></div>
+      </div>
+    </div>
+
+    <p>
+      This matters especially when you are working in multi-team or enterprise environments where compartments are used to isolate resources. Your bucket lives in one compartment and your IAM policy scopes access to that compartment. Someone with access to a different compartment cannot touch your buckets unless a policy explicitly grants it.
+    </p>
+
+    <h3>Security Zones</h3>
+    <p>
+      If your organization is using OCI Security Zones, which enforce baseline security policies automatically, there are a few hard constraints on Object Storage that you need to know about. Buckets in a security zone <strong>cannot be made public</strong>. They also <strong>must use customer-managed encryption keys</strong> from the OCI Vault service rather than the default Oracle-managed keys. And you cannot move a bucket from a security zone to a compartment outside it. These are not optional rules you can override. The platform enforces them at the operation level.
+    </p>
+
+    <h2 id="visibility">Bucket Visibility: Private, Public, and Everything In Between</h2>
+
+    <p>
+      When you create a bucket, it defaults to <strong>Private</strong>. In that state, every single request to read or list its contents must be authenticated and authorized through IAM. That is the right default and the one you should leave in place unless you have a specific reason to change it.
+    </p>
+
+    <p>
+      Making a bucket <strong>Public</strong> means anonymous, unauthenticated access. Anyone with the bucket's URL can read objects, and depending on how you configure it, they can also list all the objects in the bucket. That is a significant exposure for most use cases. Oracle's own documentation explicitly recommends against public buckets for most scenarios and instead points people toward pre-authenticated requests as the better-controlled alternative.
+    </p>
+
+    <div class="callout warn">
+      <p class="callout-label">Before you ever make a bucket public</p>
+      <p>Think carefully. When a bucket is public with list access enabled, <em>anyone</em> can enumerate every object in it. If you have uploaded anything you did not intend to expose, configuration files, internal assets, old backups, they are all visible. If you genuinely need public access, configure it to allow download only and not list, so people can fetch specific objects if they know the URL, but cannot browse the bucket contents.</p>
+    </div>
+
+    <h2 id="pars">Pre-Authenticated Requests (PARs)</h2>
+
+    <p>
+      Pre-authenticated requests are how you share specific objects or an entire bucket with people or systems that do not have OCI credentials. You generate a signed URL with a fixed expiration date, a defined access level (read-only, write-only, read/write), and optionally a specific object. Anyone with that URL can interact with the resource until the URL expires. No login required.
+    </p>
+
+    <p>
+      A PAR can be scoped to a <strong>single object</strong> (the most common use case: here is a download link for this file, valid for 48 hours) or to <strong>all objects in a bucket</strong> (useful for systems that need to upload or pull files without OCI authentication, like a backup tool running on an on-premises server).
+    </p>
+
+    <p>
+      One thing the documentation is very direct about: <mark>the full PAR URL is shown exactly once</mark>, at the moment of creation. Oracle stores only a hash of it, not the URL itself, so there is literally no way to retrieve it again after you close the creation dialog. Copy it immediately and store it somewhere before clicking away.
+    </p>
+
+    <div class="callout">
+      <p class="callout-label">A note on PAR URL formats</p>
+      <p>Oracle has been rolling out a new dedicated endpoint format for pre-authenticated requests to replace the older path-based URL format. If you create a PAR today and see a deprecation warning in the console, that is what it is referring to. Both formats work and the functionality is identical. The new format uses virtual-hosted-style URLs. You may want to update any hardcoded URLs in existing applications before Oracle eventually retires the old format.</p>
+    </div>
+
+    <h2 id="features">The Features That Do the Heavy Lifting</h2>
+
+    <p>
+      Beyond basic bucket and object management, Object Storage has a set of features that handle data protection, automation, and governance. Most people discover these when they need them, which is often too late if they have not set them up in advance.
+    </p>
+
+    <section class="bento-grid">
+
+    <div class="bento-card large">
+      <span class="bento-label">Core Protection</span>
+      <h3>Object Versioning</h3>
+      <p>
+        Keeps previous versions of objects whenever files are overwritten
+        or deleted, making accidental data loss recoverable and creating
+        a lightweight audit trail automatically.
+      </p>
+    </div>
+
+    <div class="bento-card small">
+      <span class="bento-label">Automation</span>
+      <h3>Lifecycle Policies</h3>
+      <p>
+        Automatically archives or deletes objects based on bucket-level rules.
+      </p>
+    </div>
+
+    <div class="bento-card small">
+      <span class="bento-label">Compliance</span>
+      <h3>Retention Rules</h3>
+      <p>
+        Prevents modification or deletion until the retention period expires.
+      </p>
+    </div>
+
+    <div class="bento-card half">
+      <span class="bento-label">Infrastructure</span>
+      <h3>Cross-Region Replication</h3>
+      <p>
+        Replicates objects across OCI regions for redundancy,
+        disaster recovery, and lower-latency access patterns.
+      </p>
+    </div>
+
+    <div class="bento-card half">
+      <span class="bento-label">Event System</span>
+      <h3>Event-Driven Automation</h3>
+      <p>
+        Triggers OCI Functions, Notifications, and workflows whenever
+        objects are uploaded, modified, or deleted.
+      </p>
+    </div>
+
+    <div class="bento-card half">
+      <span class="bento-label">Security</span>
+      <h3>Customer-Managed Encryption</h3>
+      <p>
+        Uses OCI Vault keys instead of Oracle-managed defaults
+        for tighter encryption control.
+      </p>
+    </div>
+
+  </section>
+
+
+    <h2 id="access">How You Actually Access It</h2>
+
+    <p>
+      Object Storage has multiple access paths and they are all legitimate. Which one you use depends on what you are doing.
+    </p>
+
+    <p>
+      The <strong>OCI Console</strong> covers everything for manual work: creating and managing buckets, uploading files, configuring PARs, enabling versioning, setting lifecycle rules. It is clean and the bucket detail page surfaces all the relevant settings in one place.
+    </p>
+
+    <p>
+      The <strong>OCI CLI</strong> is better for scripting and bulk operations, uploading directories, syncing files, automating bucket management as part of a deployment pipeline. It supports parallel uploads and the full API surface.
+    </p>
+
+    <p>
+      For application development, Oracle provides SDKs for Python, Java, Go, TypeScript, .NET, and Ruby. And critically: Object Storage supports the <strong>Amazon S3-compatible API</strong>, which means any tool or library built for AWS S3 will work with OCI Object Storage with minimal configuration changes. If you are migrating from AWS or building multi-cloud tooling, this matters a lot.
+    </p>
+
+    <h2 id="monitoring">Monitoring and Cost Visibility</h2>
+
+    <p>
+      OCI publishes a set of Object Storage metrics through the Monitoring service: storage usage per bucket, request rates, data transfer volumes. You can set up alarms on these metrics (for example: alert me when a bucket exceeds 500 GB), which are then routed through OCI Notifications to email, Slack, PagerDuty, or whatever you have connected.
+    </p>
+
+    <p>
+      For cost tracking, OCI generates daily usage reports as CSV files, automatically stored in an Object Storage bucket. These break down resource usage across your tenancy and feed into invoice reconciliation. The fact that the cost reports themselves live in Object Storage is a bit recursive, but it means you can automate ingestion of those reports using the same tools you use to interact with any other bucket.
+    </p>
+
+    <h2 id="background">What the Service Does Quietly in the Background</h2>
+
+    <p>
+      A lot of what makes Object Storage worth using is not visible in the console. It is what Oracle handles automatically. Data is stored with redundancy across multiple servers within the region. The service performs continuous integrity checking using checksums and repairs any corruption it detects without requiring any action from you. Reads use <strong>strong consistency</strong>, meaning you always get the latest version of an object. There is no eventual consistency lag to worry about when writing an object and then immediately reading it back.
+    </p>
+
+    <p>
+      None of this requires configuration. It is part of what you are getting by using the managed service rather than running your own storage infrastructure.
+    </p>
+
+    <hr class="divider">
+
+  </main>
+
+</div>
+
+<section class="closing">
+  <div class="closing-inner">
+    <h3>The documentation is actually good</h3>
+    <p>Oracle's Object Storage docs are detailed and well-organized. The bucket management page and the storage tiers overview are the best places to start if you want to go deeper than this post.</p>
+    <div class="cta-group">
+      <a href="https://docs.oracle.com/en-us/iaas/Content/Object/Tasks/managingbuckets.htm" target="_blank" class="btn btn-primary">Bucket Management Docs</a>
+      <a href="https://docs.oracle.com/en-us/iaas/Content/Object/Concepts/objectstorageoverview.htm" target="_blank" class="btn btn-secondary">Service Overview</a>
+    </div>
+  </div>
+</section>
+
+<footer class="page-footer">
+  Oracle Cloud Infrastructure &middot; Object Storage &middot; May 2026
+</footer>
+
+<script>
+  const bar = document.getElementById('readingBar');
+  window.addEventListener('scroll', () => {
+    const docH = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (window.scrollY / docH * 100) + '%';
+  });
+</script>
+
+</body>
+</html>
