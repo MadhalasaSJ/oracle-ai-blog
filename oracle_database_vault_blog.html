@@ -37,75 +37,184 @@
       min-height: 100vh;
     }
 
-    /* SIDEBAR */
-    .sidebar {
-      width: 220px;
-      min-height: 100vh;
-      background: var(--navy);
-      padding: 2rem 1rem 2rem 1.2rem;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-    }
+.blog-nav{
+  position:absolute;
+  top:0;
+  left:0;
 
-    .sidebar-brand {
-      font-size: 0.65rem;
-      font-weight: 600;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--indigo);
-      margin-bottom: 0.25rem;
-    }
+  width:100%;
 
-    .sidebar-sub {
-      font-size: 0.7rem;
-      color: #4a5280;
-      margin-bottom: 2rem;
-    }
+  padding:22px 40px;
 
-    .sidebar-label {
-      font-size: 0.6rem;
-      font-weight: 600;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: #3a4060;
-      margin-bottom: 0.6rem;
-    }
+  display:flex;
+  align-items:center;
+  gap:24px;
 
-    .sidebar a {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.8rem;
-      color: #8892c8;
-      text-decoration: none;
-      padding: 0.42rem 0.7rem;
-      border-radius: 6px;
-      margin-bottom: 0.15rem;
-      transition: background 0.15s, color 0.15s;
-    }
+  flex-wrap:wrap;
 
-    .sidebar a:hover { background: var(--navy-3); color: #c4ccf0; }
+  z-index:1000;
 
-    .sidebar a.active {
-      background: var(--navy-3);
-      color: #fff;
-      font-weight: 600;
-      border-left: 2px solid var(--indigo);
-      padding-left: calc(0.7rem - 2px);
-    }
+  background:transparent;
+}
 
-    .sdot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: #2e3560;
-      flex-shrink: 0;
-    }
-    .sidebar a.active .sdot { background: var(--indigo); }
+/* LINKS */
+
+.blog-nav a{
+  color:rgba(255,255,255,0.82);
+
+  text-decoration:none;
+
+  font-family:'JetBrains Mono', monospace;
+  font-size:13px;
+
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
+
+  text-shadow:0 2px 10px rgba(0,0,0,0.35);
+}
+
+.blog-nav a:hover,
+.blog-nav a.active{
+  color:#C74634;
+}
+
+/* MENU BUTTON */
+
+.menu-btn{
+  width:34px;
+  height:34px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:rgba(255,255,255,0.04);
+
+  border:1px solid rgba(255,255,255,0.08);
+
+  border-radius:10px;
+
+  color:#fff;
+
+  font-size:15px;
+  line-height:1;
+
+  cursor:pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+
+  backdrop-filter:blur(10px);
+
+  flex-shrink:0;
+}
+
+.menu-btn:hover{
+  background:rgba(255,255,255,0.08);
+
+  border-color:rgba(255,255,255,0.14);
+
+  transform:translateY(-1px);
+}
+.sidebar-menu{
+  position:fixed;
+  top:0;
+  left:-320px;
+
+  width:300px;
+  height:100vh;
+
+  background:#07110F;
+
+  border-right:1px solid rgba(255,255,255,0.06);
+
+  padding:26px 22px;
+
+  z-index:2000;
+
+  transition:left 0.28s ease;
+}
+
+.sidebar-menu.active{
+  left:0;
+}
+
+.sidebar-overlay{
+  position:fixed;
+  inset:0;
+
+  background:rgba(0,0,0,0.45);
+
+  opacity:0;
+  visibility:hidden;
+
+  z-index:1500;
+
+  transition:0.2s ease;
+}
+
+.sidebar-overlay.active{
+  opacity:1;
+  visibility:visible;
+}
+
+.sidebar-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  margin-bottom:30px;
+}
+
+.sidebar-title{
+  font-size:12px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+
+  color:#ffffff;
+
+  font-family:'JetBrains Mono', monospace;
+}
+
+.close-btn{
+  background:none;
+  border:none;
+
+  color:#fff;
+
+  font-size:20px;
+
+  cursor:pointer;
+}
+
+.sidebar-links{
+  display:flex;
+  flex-direction:column;
+}
+
+.sidebar-links a{
+  color:rgba(255,255,255,0.82);
+
+  text-decoration:none;
+
+  font-family:'DM Sans', sans-serif;
+
+  font-size:16px;
+
+  padding:16px 0;
+
+  border-bottom:1px solid rgba(255,255,255,0.05);
+
+  transition:0.2s ease;
+}
+
+.sidebar-links a:hover{
+  color:#C74634;
+  padding-left:6px;
+}
 
     /* MAIN */
     main {
@@ -333,20 +442,83 @@
     }
   </style>
 </head>
+<script>
+
+function toggleMenu() {
+
+  document
+    .getElementById('sidebarMenu')
+    .classList.toggle('active');
+
+  document
+    .getElementById('sidebarOverlay')
+    .classList.toggle('active');
+
+}
+
+</script>
 <body>
 
-<nav class="sidebar">
-  <div class="sidebar-brand">Oracle Blogs</div>
-  <div class="sidebar-sub">Deep Dives &amp; Guides</div>
-  <div class="sidebar-label">All Posts</div>
-  <a href="https://madhalasasj.github.io/oracle-blog/index.html"><span class="sdot"></span>Home</a>
-  <a href="https://madhalasasj.github.io/oracle-blog/oci_gen_ai.html"><span class="sdot"></span>Oracle AI</a>
-  <a href="https://madhalasasj.github.io/oracle-blog/oracle-nosql.html"><span class="sdot"></span>Oracle NoSQL</a>
-  <a href="https://madhalasasj.github.io/oracle-blog/spatiotemporal-fraud-detection-blog.html"><span class="sdot"></span>Fraud Detection</a>
-  <a href="https://madhalasasj.github.io/oracle-blog/oracle_graph_studio_blog.html"><span class="sdot"></span>Graph Studio</a>
-  <a href="https://madhalasasj.github.io/oracle-blog/oracle_database_vault_blog.html" class="active"><span class="sdot"></span>Database Vault</a>
-  <a href="https://madhalasasj.github.io/oracle-blog/oracle-nne-blog.html"><span class="sdot"></span>Network Encryption</a>
-  <a href="https://madhalasasj.github.io/oracle-blog/oracle-object-storage-blog.html"><span class="sdot"></span>Object Storage</a>
+<nav class="blog-nav">
+  <button class="menu-btn" onclick="toggleMenu()">
+    ≡
+  </button>
+  <a href="index.html">Menu</a>
+  <div class="sidebar-menu" id="sidebarMenu">
+
+  <div class="sidebar-header">
+
+    <span class="sidebar-title">
+      all blogs
+    </span>
+
+    <button class="close-btn" onclick="toggleMenu()">
+      ✕
+    </button>
+
+  </div>
+  
+  <nav class="sidebar-links">
+
+    <a href="index.html">Home</a>
+
+    <a href="oci_gen_ai.html">
+      Oracle AI
+    </a>
+
+    <a href="oracle-nosql.html">
+      Oracle NoSQL
+    </a>
+
+    <a href="spatiotemporal-fraud-detection-blog.html">
+      Fraud Detection
+    </a>
+
+    <a href="oracle_graph_studio_blog.html">
+      Graph Studio
+    </a>
+
+    <a href="oracle_database_vault_blog.html">
+      Oracle Database Vault
+    </a>
+
+    <a href="oracle-nne-blog.html">
+      Network Encryption
+    </a>
+
+    <a href="oracle-object-storage-blog.html">
+      Object Storage
+    </a>
+
+  </nav>
+
+</div>
+
+<div
+  class="sidebar-overlay"
+  id="sidebarOverlay"
+  onclick="toggleMenu()">
+</div>
 </nav>
 
 <main>
