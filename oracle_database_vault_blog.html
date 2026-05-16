@@ -28,15 +28,37 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background:
-        repeating-linear-gradient(
+      body {
+
+    background:
+      radial-gradient(
+        circle at top right,
+        rgba(79,110,247,0.08),
+        transparent 32%
+      ),
+  
+      radial-gradient(
+        circle at bottom left,
+        rgba(155,110,247,0.05),
+        transparent 28%
+      ),
+  
+      repeating-linear-gradient(
         90deg,
-        rgba(79,110,247,0.035) 0px,
-        rgba(79,110,247,0.035) 1px,
+        rgba(79,110,247,0.05) 0px,
+        rgba(79,110,247,0.05) 1px,
         transparent 1px,
         transparent 80px
       ),
+  
       #F5F7FB;
+  
+    color: var(--ink);
+  
+    font-family: 'Inter', sans-serif;
+  
+    line-height: 1.8;
+  }
 
 .blog-nav{
   position:absolute;
