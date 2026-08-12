@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SupplySense AI — Building a Supply Chain Control Center with Oracle APEX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+  :root{
+    --bg: #0E1326;
+    --bg-soft: #131A34;
+    --panel: #171F3F;
+    --panel-light: #202A50;
+    --line: rgba(237,234,225,0.10);
+    --line-strong: rgba(237,234,225,0.18);
+    --text: #EDEAE1;
+    --text-dim: #9AA3C4;
+    --text-faint: #6C7396;
+    --amber: #F5A623;
+    --teal: #2EC4B6;
+    --rust: #E8703A;
+    --green: #6FCF97;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* faint route-map backdrop */
+  body::before{
+    content:"";
+    position: fixed;
+    inset:0;
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(245,166,35,0.06), transparent 40%),
+      radial-gradient(circle at 88% 15%, rgba(46,196,182,0.06), transparent 40%),
+      radial-gradient(circle at 50% 95%, rgba(232,112,58,0.05), transparent 45%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  a{ color: var(--amber); }
+
+  .layout{
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index:1;
+  }
+
+  /* ---------- TOPBAR ---------- */
+  .topbar{
+    padding: 32px 0 20px 0;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 8px;
+  }
+
+  .brand{
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom: 4px;
+  }
+
+  .brand-dot{
+    width:9px; height:9px; border-radius:50%;
+    background: var(--amber);
+    box-shadow: 0 0 0 3px rgba(245,166,35,0.18);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse{
+    0%,100%{ box-shadow: 0 0 0 3px rgba(245,166,35,0.18); }
+    50%{ box-shadow: 0 0 0 6px rgba(245,166,35,0.08); }
+  }
+
+  .brand-sub{
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  /* ---------- MAIN ---------- */
+  main{ padding: 0 0 100px 0; min-width:0; }
+
+  .hero{
+    padding: 64px 0 40px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .status-bar{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--green);
+    background: rgba(111,207,151,0.08);
+    border: 1px solid rgba(111,207,151,0.25);
+    padding: 6px 12px;
+    border-radius: 20px;
+    margin-bottom: 26px;
+  }
+
+  .status-bar .blip{
+    width:6px;height:6px;border-radius:50%;
+    background: var(--green);
+  }
+
+  .hero h1{
+    font-family: var(--font-display);
+    font-size: clamp(2.1rem, 4.4vw, 3.4rem);
+    line-height: 1.12;
+    margin: 0 0 18px 0;
+    font-weight: 700;
+    max-width: 15ch;
+  }
+
+  .hero h1 span{ color: var(--amber); }
+
+  .hero p.lede{
+    font-size: 1.08rem;
+    color: var(--text-dim);
+    max-width: 62ch;
+    margin: 0 0 28px 0;
+  }
+
+  .owner-strip{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .owner-chip{
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    background: var(--panel);
+    border: 1px solid var(--line-strong);
+    color: var(--text-dim);
+    padding: 8px 12px;
+    border-radius: 8px;
+  }
+
+  .owner-chip b{ color: var(--text); font-weight: 600; }
+
+  /* mini kpi row echoing the app's own KPI cards */
+  .kpi-row{
+    display:grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-top: 36px;
+  }
+
+  .kpi-card{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 14px;
+  }
+
+  .kpi-card .kpi-label{
+    font-family: var(--font-mono);
+    font-size: 0.63rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-faint);
+    margin-bottom: 8px;
+  }
+
+  .kpi-card .kpi-value{
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+  }
+
+  .kpi-card.alert .kpi-value{ color: var(--rust); }
+  .kpi-card.ok .kpi-value{ color: var(--teal); }
+
+  /* ---------- SECTIONS ---------- */
+  section.block{
+    padding: 56px 0;
+    border-bottom: 1px solid var(--line);
+    scroll-margin-top: 24px;
+  }
+
+  section.block:last-of-type{ border-bottom: none; }
+
+  .eyebrow{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom: 14px;
+  }
+
+  .eyebrow .num{
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--amber);
+    border: 1px solid rgba(245,166,35,0.35);
+    background: rgba(245,166,35,0.08);
+    width: 30px; height:30px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius: 7px;
+  }
+
+  .eyebrow .label{
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--text-faint);
+  }
+
+  h2{
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin: 0 0 18px 0;
+  }
+
+  h3{
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 28px 0 10px 0;
+    color: var(--text);
+  }
+
+  p{ color: var(--text-dim); margin: 0 0 16px 0; font-size: 0.98rem; }
+
+  p strong{ color: var(--text); font-weight: 600; }
+
+  ul.plain, ol.plain{
+    color: var(--text-dim);
+    padding-left: 20px;
+    margin: 0 0 16px 0;
+  }
+
+  ul.plain li, ol.plain li{ margin-bottom: 7px; }
+
+  /* table grid for section 3 */
+  .table-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px,1fr));
+    gap: 10px;
+    margin: 20px 0 8px 0;
+  }
+
+  .table-chip{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text);
+  }
+
+  .table-chip .tag{
+    display:block;
+    font-size: 0.6rem;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+
+  /* sample record card, styled like the app's alert card */
+  .sample-card{
+    background: var(--panel);
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin: 18px 0;
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .sample-card .sc-name{ font-weight: 600; color: var(--text); }
+  .sample-card .sc-meta{ font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim); }
+
+  .badge{
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .badge.low{ background: rgba(111,207,151,0.12); color: var(--green); border:1px solid rgba(111,207,151,0.3); }
+  .badge.medium{ background: rgba(245,166,35,0.12); color: var(--amber); border:1px solid rgba(245,166,35,0.3); }
+  .badge.high{ background: rgba(232,112,58,0.12); color: var(--rust); border:1px solid rgba(232,112,58,0.3); }
+  .badge.reorder{ background: rgba(232,112,58,0.14); color: var(--rust); border:1px solid rgba(232,112,58,0.35); }
+
+  /* dashboard walkthrough cards */
+  .walk-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 22px;
+  }
+
+  @media (max-width: 900px){ .walk-grid{ grid-template-columns: 1fr; } .kpi-row{ grid-template-columns: repeat(3,1fr);} }
+
+  .walk-card{
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .walk-card .wc-head{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+  }
+
+  .walk-card .wc-icon{
+    width: 30px; height:30px;
+    border-radius: 8px;
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    background: var(--panel-light);
+    color: var(--amber);
+    flex-shrink:0;
+  }
+
+  .walk-card h4{
+    font-family: var(--font-display);
+    font-size: 0.98rem;
+    margin:0;
+    font-weight: 600;
+  }
+
+  .walk-card p{ font-size: 0.9rem; margin-bottom: 0; }
+
+  /* layer diagram section 6 & 4 flow */
+  .flow{
+    display:flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 24px 0;
+  }
+
+  .flow-step{
+    display:flex;
+    align-items:center;
+    gap: 16px;
+    padding: 14px 0;
+  }
+
+  .flow-step .fs-tag{
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--bg);
+    background: var(--amber);
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .flow-step .fs-text{ color: var(--text-dim); font-size: 0.92rem; }
+  .flow-arrow{ color: var(--text-faint); font-family: var(--font-mono); padding-left: 8px; font-size: 0.85rem; }
+
+  /* feature pill list section 7 */
+  .pill-wrap{
+    display:flex; flex-wrap:wrap; gap: 9px; margin: 20px 0 8px 0;
+  }
+  .pill{
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text);
+    background: var(--panel);
+    border: 1px solid var(--line-strong);
+    padding: 7px 13px;
+    border-radius: 20px;
+  }
+
+  /* benefits grid section 8 */
+  .benefit-grid{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-top: 20px;
+  }
+  @media (max-width: 900px){ .benefit-grid{ grid-template-columns: 1fr; } }
+
+  .benefit-item{
+    display:flex;
+    gap: 12px;
+    align-items:flex-start;
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+
+  .benefit-item .b-mark{
+    color: var(--teal);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    margin-top: 1px;
+  }
+
+  .benefit-item p{ margin:0; font-size: 0.9rem; }
+  .benefit-item strong{ display:block; color: var(--text); margin-bottom: 3px; font-size: 0.95rem; }
+
+  /* video section */
+  .video-wrap{
+    margin-top: 22px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--line-strong);
+    background: #000;
+  }
+
+  video{
+    width: 100%;
+    display:block;
+  }
+
+  .video-caption{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    padding: 12px 4px 0 4px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .video-caption .vc-left{
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-faint);
+  }
+
+  .video-caption .vc-right{
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-faint);
+    display:flex;
+    gap:14px;
+  }
+
+  /* footer / ownership block */
+  footer{
+    padding: 46px 0 20px 0;
+    margin-top: 10px;
+  }
+
+  .owner-block{
+    background: var(--panel);
+    border: 1px solid var(--line-strong);
+    border-radius: 14px;
+    padding: 26px 28px;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 30px;
+  }
+
+  @media (max-width: 900px){ .owner-block{ grid-template-columns: 1fr; } }
+
+  .owner-block .ob-item .ob-label{
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-faint);
+    margin-bottom: 4px;
+  }
+
+  .owner-block .ob-item .ob-value{
+    font-size: 0.98rem;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .foot-note{
+    margin-top: 20px;
+    font-size: 0.85rem;
+    color: var(--text-faint);
+  }
+
+  /* narrow screens */
+  @media (max-width: 860px){
+    .layout{ padding: 0 20px; }
+    .kpi-row{ grid-template-columns: repeat(2,1fr); }
+  }
+
+  @media (min-width: 861px){
+    .layout{ padding: 0 24px; }
+  }
+
+  .blog-nav{
+  position:absolute;
+  top:0;
+  left:0;
+
+  width:100%;
+
+  padding:22px 40px;
+
+  display:flex;
+  align-items:center;
+  gap:24px;
+
+  flex-wrap:wrap;
+
+  z-index:1000;
+
+  background:transparent;
+}
+
+/* LINKS */
+
+.blog-nav a{
+  color: var(--ink);
+
+  text-decoration:none;
+
+  font-family:'JetBrains Mono', monospace;
+  font-size:13px;
+
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
+
+  text-shadow:0 2px 10px rgba(0,0,0,0.35);
+}
+
+.blog-nav a:hover,
+.blog-nav a.active{
+  color:#C74634;
+}
+
+/* MENU BUTTON */
+
+.menu-btn{
+  width:34px;
+  height:34px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:rgba(255,255,255,0.04);
+
+  border:1px solid rgba(255,255,255,0.08);
+
+  border-radius:10px;
+
+  color:#000000;
+
+  font-size:15px;
+  line-height:1;
+
+  cursor:pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+
+  backdrop-filter:blur(10px);
+
+  flex-shrink:0;
+}
+
+.menu-btn:hover{
+  background:rgba(255,255,255,0.08);
+
+  border-color:rgba(255,255,255,0.14);
+
+  transform:translateY(-1px);
+}
+.sidebar-menu{
+  position:fixed;
+  top:0;
+  left:-320px;
+
+  width:300px;
+  height:100vh;
+
+  background:#07110F;
+
+  border-right:1px solid rgba(255,255,255,0.06);
+
+  padding:26px 22px;
+
+  z-index:2000;
+
+  transition:left 0.28s ease;
+}
+
+.sidebar-menu.active{
+  left:0;
+}
+
+.sidebar-overlay{
+  position:fixed;
+  inset:0;
+
+  background:rgba(0,0,0,0.45);
+
+  opacity:0;
+  visibility:hidden;
+
+  z-index:1500;
+
+  transition:0.2s ease;
+}
+
+.sidebar-overlay.active{
+  opacity:1;
+  visibility:visible;
+}
+
+.sidebar-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  margin-bottom:30px;
+}
+
+.sidebar-title{
+  font-size:12px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+
+  color:#ffffff;
+
+  font-family:'JetBrains Mono', monospace;
+}
+
+.close-btn{
+  background:none;
+  border:none;
+
+  color:#fff;
+
+  font-size:20px;
+
+  cursor:pointer;
+}
+
+.sidebar-links{
+  display:flex;
+  flex-direction:column;
+}
+
+.sidebar-links a{
+  color:rgba(255,255,255,0.82);
+
+  text-decoration:none;
+
+  font-family:'DM Sans', sans-serif;
+
+  font-size:16px;
+
+  padding:16px 0;
+
+  border-bottom:1px solid rgba(255,255,255,0.05);
+
+  transition:0.2s ease;
+}
+
+.sidebar-links a:hover{
+  color:#C74634;
+  padding-left:6px;
+}
+
+
+</style>
+</head>
+<script>
+
+function toggleMenu() {
+
+  document
+    .getElementById('sidebarMenu')
+    .classList.toggle('active');
+
+  document
+    .getElementById('sidebarOverlay')
+    .classList.toggle('active');
+
+}
+
+</script>
+<body>
+  <nav class="blog-nav">
+  <button class="menu-btn" onclick="toggleMenu()">
+    ≡
+  </button>
+  <a href="index.html">Menu</a>
+  <div class="sidebar-menu" id="sidebarMenu">
+
+  <div class="sidebar-header">
+
+    <span class="sidebar-title">
+      all blogs
+    </span>
+
+    <button class="close-btn" onclick="toggleMenu()">
+      ✕
+    </button>
+
+  </div>
+  
+  <nav class="sidebar-links">
+
+    <a href="index.html">Home</a>
+
+    <a href="oci_gen_ai.html">
+      Oracle AI
+    </a>
+
+    <a href="oracle-nosql.html">
+      Oracle NoSQL
+    </a>
+
+    <a href="spatiotemporal-fraud-detection-blog.html">
+      Fraud Detection
+    </a>
+
+    <a href="oracle_graph_studio_blog.html">
+      Graph Studio
+    </a>
+
+    <a href="oracle_database_vault_blog.html">
+      Oracle Database Vault
+    </a>
+
+    <a href="oracle-nne-blog.html">
+      Network Encryption
+    </a>
+
+    <a href="oracle-object-storage-blog.html">
+      Object Storage
+    </a>
+
+    <a href="oracle-enterprise-manager.html">
+      Enterprise Manager
+    </a>
+    <a href="oracle-dbsat.html">
+      DBSAT
+    </a>
+    <a href="oracle-label-security.html">
+      Label Security
+    </a>
+    <a href="oke-blog-post.html">
+      OKE
+    </a>
+    <a href="supplysense-ai-blog.html">
+      Supplysense AI
+    </a>
+
+  </nav>
+
+</div>
+
+<div class="layout">
+
+  <div class="topbar">
+    <div class="brand"><span class="brand-dot"></span>SupplySense AI</div>
+    <div class="brand-sub">Supply Chain Control Center</div>
+  </div>
+
+  <main>
+
+    <div class="hero">
+      <div class="status-bar"><span class="blip"></span> Dashboard live · all layers connected</div>
+      <h1>Turning scattered supply chain tables into <span>one control center</span></h1>
+      <p class="lede">This is a walkthrough of SupplySense AI, a Supply Chain Control Center I built on Oracle APEX and Oracle Database. I'll go through what it does and why I think a dashboard like this actually helps someone make a decision faster.</p>
+
+      <div class="owner-strip">
+        <div class="owner-chip"><b>Author:</b> Madhalasa SJ</div>
+        <div class="owner-chip"><b>Project:</b> SupplySense AI</div>
+        <div class="owner-chip"><b>Built with:</b> Oracle APEX · Oracle Database · SQL</div>
+        <div class="owner-chip"><b>Published:</b> August 12, 2026</div>
+      </div>
+
+      <div class="kpi-row">
+        <div class="kpi-card"><div class="kpi-label">Products</div><div class="kpi-value">128</div></div>
+        <div class="kpi-card"><div class="kpi-label">Suppliers</div><div class="kpi-value">42</div></div>
+        <div class="kpi-card"><div class="kpi-label">Warehouses</div><div class="kpi-value">6</div></div>
+        <div class="kpi-card"><div class="kpi-label">Purchase orders</div><div class="kpi-value">214</div></div>
+        <div class="kpi-card ok"><div class="kpi-label">Total inventory</div><div class="kpi-value">18,540</div></div>
+        <div class="kpi-card alert"><div class="kpi-label">Delayed shipments</div><div class="kpi-value">7</div></div>
+      </div>
+    </div>
+
+    <!-- 1. PROBLEM -->
+    <section class="block" id="problem">
+      <div class="eyebrow"><div class="num">01</div><div class="label">The problem</div></div>
+      <h2>Raw tables don't tell you what needs attention right now</h2>
+
+      <p>Any active supply chain generates a lot of data, and it's spread across a lot of different places. Suppliers, products, warehouses, inventory counts, purchase orders, shipments, all of it usually sits in its own table. Each table can answer a narrow question on its own. But none of them, by itself, tells you how the supply chain is actually doing right now.</p>
+
+      <p>Think about the kind of questions a supply chain manager asks on a normal day. How much inventory do we actually have right now? Which products are close to running out and need to be reordered? Are any shipments delayed, and where? Which suppliers are risky enough that we should be watching them more closely? What's the total value sitting in purchase orders that are still pending?</p>
+
+      <p>None of these have a clean answer if you have to open five different tables, run a query for each one, and then try to hold all of it in your head. That's not really a data problem, it's a visibility problem. The information already exists, it's just scattered, and scattered information is slow to act on.</p>
+
+      <p>That gap, between the data existing somewhere and someone being able to act on it in ten seconds, is what I wanted to close with this project.</p>
+    </section>
+
+    <!-- 2. SOLUTION -->
+    <section class="block" id="solution">
+      <div class="eyebrow"><div class="num">02</div><div class="label">The solution</div></div>
+      <h2>SupplySense AI: one dashboard, the whole supply chain</h2>
+
+      <p>SupplySense AI is the Supply Chain Control Center I ended up building, using Oracle APEX on top of an Oracle Database. The idea behind it is fairly simple. Pull the most important supply chain information onto a single page, so a manager can look at one screen and understand what's going on instead of opening a dozen different reports.</p>
+
+      <p>It covers inventory, suppliers, warehouses, purchase orders and shipments. In practice that means it helps with spotting products that need to be reordered, catching delayed shipments early, understanding which suppliers carry more risk, and keeping an eye on how much money is tied up in purchase orders at any given stage.</p>
+
+      <p>Instead of making someone go inspect raw records, SupplySense AI shows that same information as KPIs, charts, alerts and a calendar. The important parts surface on their own, you don't have to go dig for them.</p>
+    </section>
+
+    <!-- 3. DATA -->
+    <section class="block" id="data">
+      <div class="eyebrow"><div class="num">03</div><div class="label">Data & database design</div></div>
+      <h2>What's actually sitting behind the dashboard</h2>
+
+      <p>Everything on the dashboard sits on top of real relational tables in Oracle Database. There's nothing on screen that isn't coming from an actual query against actual data. Here's a quick look at the core tables and what they hold.</p>
+
+      <div class="table-grid">
+        <div class="table-chip">SUPPLIERS<span class="tag">country, lead time, risk, rating, status</span></div>
+        <div class="table-chip">PRODUCTS<span class="tag">product details, category</span></div>
+        <div class="table-chip">WAREHOUSES<span class="tag">location, capacity</span></div>
+        <div class="table-chip">INVENTORY<span class="tag">current stock, safety stock</span></div>
+        <div class="table-chip">PURCHASE_ORDERS<span class="tag">status, order date, total value</span></div>
+        <div class="table-chip">PO_ITEMS<span class="tag">line items per order</span></div>
+        <div class="table-chip">SHIPMENTS<span class="tag">origin, destination, status, delivery date</span></div>
+      </div>
+
+      <p>Here's what a row of supplier data actually looks like once it's pulled into the dashboard:</p>
+
+      <div class="sample-card">
+        <div>
+          <div class="sc-name">Shenzhen Electronics Ltd</div>
+          <div class="sc-meta">Rating 3.8/5 · Lead time 21 days</div>
+        </div>
+        <span class="badge high">High risk</span>
+      </div>
+
+      <p>You don't really need to see every row of every table to understand the shape of the data. Two or three tables shown briefly, along with how they connect to each other (inventory links to products, shipments link to purchase orders), is enough to show the dashboard is standing on real data and not a static mockup. That's roughly how I approached it in the demo video below too.</p>
+    </section>
+
+    <!-- 4. APEX -->
+    <section class="block" id="apex">
+      <div class="eyebrow"><div class="num">04</div><div class="label">How Oracle APEX was used</div></div>
+      <h2>APEX built the interface, SQL did the thinking</h2>
+
+      <p>I didn't want to build a separate backend, a separate API layer, and then a separate frontend on top of all that. Oracle APEX let me skip most of it and build the application directly on top of the Oracle database, using the same SQL that already describes the data.</p>
+
+      <p>Roughly, this is how I think about the split between the three layers:</p>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="fs-tag">DATABASE</div>
+          <div class="fs-text">Stores the raw supply chain records: products, suppliers, inventory, orders, shipments.</div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="fs-tag">SQL</div>
+          <div class="fs-text">Filters, joins, groups and aggregates that data into something meaningful, and applies the actual business logic (which suppliers are high risk, which products are below safety stock, and so on).</div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="fs-tag">APEX</div>
+          <div class="fs-text">Takes the output of those SQL queries and turns it into cards, charts, reports, activity views and a calendar, wrapped in an actual navigable application.</div>
+        </div>
+      </div>
+
+      <p>Every card, chart and report on the dashboard is a region powered by a SQL query. There's no separate layer translating the data before it reaches the screen. The SQL is where the real logic lives. APEX is what makes that logic visible and usable.</p>
+    </section>
+
+    <!-- 5. WALKTHROUGH -->
+    <section class="block" id="walkthrough">
+      <div class="eyebrow"><div class="num">05</div><div class="label">Dashboard walkthrough</div></div>
+      <h2>Walking through what's actually on the screen</h2>
+
+      <p>Here's a look at the main pieces of the dashboard, and what each one is actually doing.</p>
+
+      <div class="walk-grid">
+
+        <div class="walk-card">
+          <div class="wc-head"><div class="wc-icon">KPI</div><h4>Supply chain KPI cards</h4></div>
+          <p>Products, suppliers, warehouses, purchase orders, total inventory and delayed shipments, shown as a quick summary right at the top. It answers the "what's the overall state of things" question before you look at anything else.</p>
+        </div>
+
+        <div class="walk-card">
+          <div class="wc-head"><div class="wc-icon">WH</div><h4>Inventory by warehouse</h4></div>
+          <p>A chart comparing how much inventory each warehouse is holding. It's an easy way to see which locations are carrying more stock and which ones are running lighter.</p>
+        </div>
+
+        <div class="walk-card">
+          <div class="wc-head"><div class="wc-icon">SH</div><h4>Shipment status</h4></div>
+          <p>A breakdown of shipments across delivered, processing, in transit and delayed. If delayed shipments spike, you notice it right away instead of it hiding inside individual records.</p>
+        </div>
+
+        <div class="walk-card">
+          <div class="wc-head"><div class="wc-icon">SR</div><h4>Supplier risk overview</h4></div>
+          <p>Suppliers grouped into low, medium and high risk. It gives a fast read on whether the supplier base is leaning risky at any given moment.</p>
+        </div>
+
+        <div class="walk-card">
+          <div class="wc-head"><div class="wc-icon">PO</div><h4>Purchase order status</h4></div>
+          <p>Purchase orders grouped by status, paired with cards showing the count and total value for each one. So you get both the shape of it and the actual money involved.</p>
+        </div>
+
+        <div class="walk-card">
+          <div class="wc-head"><div class="wc-icon">!</div><h4>Inventory alerts</h4></div>
+          <p>This compares current stock against safety stock and flags anything that's fallen below it with a reorder badge. As an example, current stock at 61 against a safety stock requirement of 121 would get flagged.</p>
+        </div>
+
+        <div class="walk-card">
+          <div class="wc-head"><div class="wc-icon">SA</div><h4>Supplier risk activity</h4></div>
+          <p>A compact view that combines a supplier's status, risk level, rating and lead time in one place. It makes it easy to spot a supplier that's high risk, poorly rated and slow, all at the same time.</p>
+        </div>
+
+        <div class="walk-card">
+          <div class="wc-head"><div class="wc-icon">CAL</div><h4>Shipment delivery calendar</h4></div>
+          <p>A calendar view of upcoming deliveries by date. It shifts the dashboard from just describing what's happening to also showing when it's happening.</p>
+        </div>
+
+      </div>
+
+      <p>Below all of this, there are also detailed report sections for recent shipments and recent purchase orders, along with a side menu leading into individual pages for suppliers, products, warehouses, inventory and more. The dashboard works as the summary, and the rest of the application is where you actually go to dig in.</p>
+    </section>
+
+    <!-- 6. TECHNIQUES -->
+    <section class="block" id="techniques">
+      <div class="eyebrow"><div class="num">06</div><div class="label">Techniques used</div></div>
+      <h2>What's actually happening under "I used APEX"</h2>
+
+      <p>Saying "I used Oracle APEX" doesn't explain much by itself, so here's what that actually meant for this project.</p>
+
+      <div class="pill-wrap">
+        <span class="pill">SQL queries with joins across tables</span>
+        <span class="pill">GROUP BY and aggregate functions</span>
+        <span class="pill">Oracle database tables and relationships</span>
+        <span class="pill">APEX Cards regions</span>
+        <span class="pill">APEX Chart regions (bar, donut)</span>
+        <span class="pill">APEX Calendar region</span>
+        <span class="pill">APEX Report / classic report regions</span>
+        <span class="pill">Page regions and page navigation</span>
+        <span class="pill">Side navigation menu</span>
+        <span class="pill">Badges and status indicators</span>
+        <span class="pill">Avatars / icons</span>
+        <span class="pill">Dashboard grid layout</span>
+        <span class="pill">SQL-driven dynamic content</span>
+      </div>
+
+      <p>A couple of examples of the actual logic behind these. The reorder alert compares current stock against safety stock directly in SQL, if current stock is less than or equal to safety stock, the product gets flagged. Supplier risk comes from grouping suppliers into low, medium and high categories and counting them. Purchase order value by status is just aggregating the total amount for every order in each status. None of it is decorative, every chart and card on the page is the output of a query actually doing work.</p>
+    </section>
+
+    <!-- 7. BENEFITS -->
+    <section class="block" id="benefits">
+      <div class="eyebrow"><div class="num">07</div><div class="label">User benefits</div></div>
+      <h2>What this actually saves a manager from doing</h2>
+
+      <p>The point of building this wasn't really to make a nicer looking report. It was to shorten the distance between something needing attention and someone actually noticing it. With the dashboard, a supply chain manager can quickly tell:</p>
+
+      <div class="benefit-grid">
+        <div class="benefit-item"><span class="b-mark">›</span><p><strong>Which shipments are delayed</strong>The shipment status chart and cards surface this without needing to scan individual shipment records.</p></div>
+        <div class="benefit-item"><span class="b-mark">›</span><p><strong>Where inventory is running short</strong>The reorder alert cards flag products below their safety stock level automatically.</p></div>
+        <div class="benefit-item"><span class="b-mark">›</span><p><strong>Which suppliers carry the most risk</strong>The risk overview and supplier activity view combine risk, rating and lead time in one look.</p></div>
+        <div class="benefit-item"><span class="b-mark">›</span><p><strong>How suppliers are performing</strong>The supplier performance chart makes it easy to compare stronger and weaker suppliers.</p></div>
+        <div class="benefit-item"><span class="b-mark">›</span><p><strong>Where purchase order value is concentrated</strong>Status cards show both the count and the total value sitting in pending, processing or delayed orders.</p></div>
+        <div class="benefit-item"><span class="b-mark">›</span><p><strong>What's arriving soon</strong>The delivery calendar gives a forward-looking view instead of only a current-state snapshot.</p></div>
+      </div>
+    </section>
+
+    <!-- 8. VIDEO -->
+    <section class="block" id="video">
+      <div class="eyebrow"><div class="num">08</div><div class="label">Video demonstration</div></div>
+      <h2>Seeing it move</h2>
+
+      <p>A short recording explains this better than another paragraph would, so here's a walkthrough of the dashboard itself. It starts on the control center, scrolls through the main sections, opens a couple of the underlying table pages from the side menu, and comes back to the dashboard.</p>
+
+      <div class="video-wrap">
+        <iframe
+            src="https://www.youtube.com/embed/_DhLzhKIhZU"
+            title="SupplySense AI – Live Dashboard Walkthrough"
+            frameborder="0"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen>
+        </iframe>
+    </div>
+
+    <div class="video-caption">
+        <div class="vc-left">SupplySense AI – Live dashboard walkthrough</div>
+        <div class="vc-right">
+            <span>1:37</span>
+            <span>Oracle APEX</span>
+        </div>
+    </div>
+    </section>
+
+    <!-- 9. LEARNING -->
+    <section class="block" id="learning">
+      <div class="eyebrow"><div class="num">09</div><div class="label">Oracle technology & learning</div></div>
+      <h2>What I took away from building this</h2>
+
+      <p>This project pushed me past just writing individual queries or building a single report. What I actually learned was how the three layers work together as one thing. Oracle Database holds the structured data. SQL is where that data turns into actual business logic, deciding what counts as a risk, what counts as low stock, what counts as a delay. Oracle APEX takes those SQL results and turns them into something a person can actually look at and use, without needing a separate frontend built from scratch.</p>
+
+      <p>The other thing that became clear while building this was that a dashboard works better when it's layered. KPI cards give the overview, charts give the patterns, alerts and activity views point at what needs attention, and detailed reports and the calendar give the specifics. Someone who just wants a ten-second glance and someone who wants to dig into the actual records both end up served by the same page.</p>
+
+      <p>Right now, SupplySense AI is mainly about visibility and monitoring, showing what's happening and flagging what needs attention. Where I'd like to take it next is toward things like demand forecasting, predicting which suppliers or shipments are likely to run into trouble, automated reorder suggestions, and maybe eventually letting someone ask the dashboard a question in plain language instead of navigating to a chart. That would move it from a dashboard that describes the supply chain to one that actually helps plan around it.</p>
+    </section>
+
+    <footer>
+      <div class="owner-block">
+        <div class="ob-item"><div class="ob-label">Author / Project Owner</div><div class="ob-value">Madhalasa SJ</div></div>
+        <div class="ob-item"><div class="ob-label">Project</div><div class="ob-value">SupplySense AI</div></div>
+        <div class="ob-item"><div class="ob-label">Built with</div><div class="ob-value">Oracle APEX + Oracle Database + SQL</div></div>
+        <div class="ob-item"><div class="ob-label">Published</div><div class="ob-value">August 12, 2026</div></div>
+      </div>
+      <p class="foot-note">SupplySense AI is a personal project exploring Oracle APEX as an application layer over Oracle Database and SQL, covering everything from Products and Suppliers through to Purchase Orders and Shipments.</p>
+    </footer>
+
+  </main>
+
+</div>
+
+</body>
+</html>
