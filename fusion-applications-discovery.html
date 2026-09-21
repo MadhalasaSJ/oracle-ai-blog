@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>I Poked Around Oracle Fusion Applications and Actually Got It</title>
+<style>
+  :root{
+    --bg: #0c0c0c;
+    --bg-panel: #131313;
+    --ink: #f2f0ea;
+    --ink-dim: #a8a49b;
+    --accent: #e8ff3d;
+    --line: rgba(242,240,234,0.14);
+    --mono: 'JetBrains Mono', 'Courier New', monospace;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html{ scroll-padding-top: env(safe-area-inset-top, 0px); }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]){
+      --bg: #0c0c0c;
+      --ink: #f2f0ea;
+    }
+  }
+
+  .wrap{ max-width: 900px; margin: 0 auto; padding: 0 28px; }
+
+  /* HERO */
+  .hero{
+    padding: 64px 0 40px;
+    border-bottom: 1px solid var(--line);
+  }
+  .tag{
+    display:inline-block;
+    background: var(--accent);
+    color: #0c0c0c;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    margin-bottom: 28px;
+    font-weight: 700;
+  }
+  h1.title{
+    font-size: clamp(2.6rem, 8vw, 5.2rem);
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    margin: 0 0 22px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .dek{
+    max-width: 560px;
+    color: var(--ink-dim);
+    font-size: 1.05rem;
+  }
+  .meta-row{
+    display:flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 42px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .meta-row span.by{ color: var(--ink); }
+
+  /* IMAGE / BAND PANEL */
+  .band{
+    position: relative;
+    margin: 0;
+    min-height: 260px;
+    background:
+      radial-gradient(120% 90% at 15% 20%, rgba(232,255,61,0.10), transparent 55%),
+      linear-gradient(180deg, #1d2a2e 0%, #33474c 45%, #6b8a8d 100%);
+    border-bottom: 1px solid var(--line);
+    display:flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+  .band .wrap{
+    width:100%;
+    padding-top: 34px;
+    padding-bottom: 34px;
+    display:flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+  .band-caption{
+    font-size: clamp(1.4rem, 4vw, 2.1rem);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: #f2f0ea;
+    max-width: 420px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.35);
+  }
+  .band-note{
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: rgba(12,12,12,0.55);
+    border: 1px solid rgba(242,240,234,0.25);
+    padding: 12px 16px;
+    color: var(--ink);
+    backdrop-filter: blur(2px);
+  }
+  .band-note div + div{ margin-top: 4px; color: var(--ink-dim); }
+
+  /* ARTICLE */
+  article{ padding: 56px 0 100px; }
+  article p{
+    font-size: 1.08rem;
+    color: var(--ink);
+    margin: 0 0 22px;
+    max-width: 680px;
+  }
+  article p.dim{ color: var(--ink-dim); }
+  h2{
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 56px 0 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  h3.sub{
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin: 6px 0 16px;
+    max-width: 680px;
+  }
+  .pullquote{
+    margin: 44px 0;
+    padding: 28px 0 28px 26px;
+    border-left: 2px solid var(--accent);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    max-width: 620px;
+    color: var(--ink);
+  }
+  ul.notes{
+    list-style: none;
+    padding: 0;
+    margin: 0 0 26px;
+    max-width: 680px;
+  }
+    ul.notes li{
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 26px 200px 1fr;
+    gap: 14px;
+    font-size: 1.02rem;
+    align-items: start;
+  }
+
+  ul.notes li:last-child{
+    border-bottom: 1px solid var(--line);
+  }
+
+  ul.notes li .n{
+    font-family: var(--mono);
+    color: var(--accent);
+    font-size: 12px;
+    padding-top: 3px;
+  }
+
+  ul.notes li strong{
+    display: block;
+  }
+  .stat-strip{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin: 40px 0;
+  }
+  .stat-strip div{
+    background: var(--bg-panel);
+    padding: 22px 18px;
+  }
+  .stat-strip .k{
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    display:block;
+    margin-bottom: 8px;
+  }
+  .stat-strip .v{
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+  @media (max-width: 640px){
+    .stat-strip{ grid-template-columns: 1fr; }
+  }
+  figure.flow{
+    margin: 40px 0 48px;
+    padding: 0;
+    max-width: 680px;
+  }
+  .sign{
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-dim);
+    letter-spacing: 0.05em;
+  }
+  a.src{
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 3px;
+  }
+  a.src:hover{ color: var(--accent); }
+  footer{
+    border-top: 1px solid var(--line);
+    padding: 26px 0 50px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  /* =========================
+   GLOBAL BLOG NAV
+========================= */
+
+.blog-nav{
+  position:absolute;
+  top:0;
+  left:0;
+
+  width:100%;
+
+  padding:22px 40px;
+
+  display:flex;
+  align-items:center;
+  gap:24px;
+
+  flex-wrap:wrap;
+
+  z-index:1000;
+
+  background:transparent;
+}
+
+.blog-nav a{
+  color:rgba(255,255,255,0.82);
+
+  text-decoration:none;
+
+  font-family:'JetBrains Mono', monospace;
+  font-size:13px;
+
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
+
+  text-shadow:0 2px 10px rgba(0,0,0,0.35);
+}
+
+.blog-nav a:hover,
+.blog-nav a.active{
+  color:#C74634;
+}
+
+/* MENU BUTTON */
+
+.menu-btn{
+  width:34px;
+  height:34px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:rgba(255,255,255,0.04);
+
+  border:1px solid rgba(255,255,255,0.08);
+
+  border-radius:10px;
+
+  color:#fff;
+
+  font-size:15px;
+
+  cursor:pointer;
+
+  transition:0.18s ease;
+
+  backdrop-filter:blur(10px);
+}
+
+.menu-btn:hover{
+  background:rgba(255,255,255,0.08);
+
+  border-color:rgba(255,255,255,0.14);
+}
+
+/* SIDEBAR */
+
+.sidebar-menu{
+  position:fixed;
+  top:0;
+  left:-320px;
+
+  width:300px;
+  height:100vh;
+
+  background:#07110F;
+
+  border-right:1px solid rgba(255,255,255,0.06);
+
+  padding:26px 22px;
+
+  z-index:2000;
+
+  transition:left 0.28s ease;
+}
+
+.sidebar-menu.active{
+  left:0;
+}
+
+.sidebar-overlay{
+  position:fixed;
+  inset:0;
+
+  background:rgba(0,0,0,0.45);
+
+  opacity:0;
+  visibility:hidden;
+
+  z-index:1500;
+
+  transition:0.2s ease;
+}
+
+.sidebar-overlay.active{
+  opacity:1;
+  visibility:visible;
+}
+
+.sidebar-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  margin-bottom:30px;
+}
+
+.sidebar-title{
+  font-size:12px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+
+  color:#ffffff;
+
+  font-family:'JetBrains Mono', monospace;
+}
+
+.close-btn{
+  background:none;
+  border:none;
+
+  color:#fff;
+
+  font-size:20px;
+
+  cursor:pointer;
+}
+
+.sidebar-links{
+  display:flex;
+  flex-direction:column;
+}
+
+.sidebar-links a{
+  color:rgba(255,255,255,0.82);
+
+  text-decoration:none;
+
+  font-family:'DM Sans', sans-serif;
+
+  font-size:16px;
+
+  padding:16px 0;
+
+  border-bottom:1px solid rgba(255,255,255,0.05);
+
+  transition:0.2s ease;
+}
+
+.sidebar-links a:hover{
+  color:#C74634;
+  padding-left:6px;
+}
+</style>
+</head>
+<script>
+function toggleMenu() {
+
+  document
+    .getElementById('sidebarMenu')
+    .classList.toggle('active');
+
+  document
+    .getElementById('sidebarOverlay')
+    .classList.toggle('active');
+
+}
+
+</script>
+<body>
+  <nav class="blog-nav">
+
+  <button class="menu-btn" onclick="toggleMenu()">
+    ≡
+  </button>
+
+  <a href="index.html">Menu</a>
+
+  <div class="sidebar-menu" id="sidebarMenu">
+
+    <div class="sidebar-header">
+
+      <span class="sidebar-title">
+        all blogs
+      </span>
+
+      <button class="close-btn" onclick="toggleMenu()">
+        ✕
+      </button>
+
+    </div>
+
+    <nav class="sidebar-links">
+
+      <a href="index.html">Home</a>
+
+      <a href="oci_gen_ai.html">
+        Oracle AI
+      </a>
+
+      <a href="oracle-nosql.html">
+        Oracle NoSQL
+      </a>
+
+      <a href="spatiotemporal-fraud-detection-blog.html">
+        Fraud Detection
+      </a>
+
+      <a href="oracle_graph_studio_blog.html">
+        Graph Studio
+      </a>
+
+      <a href="oracle_database_vault_blog.html">
+        Oracle Database Vault
+      </a>
+
+      <a href="oracle-nne-blog.html">
+        Network Encryption
+      </a>
+
+      <a href="oracle-object-storage-blog.html">
+        Object Storage
+      </a>
+
+      <a href="oracle-enterprise-manager.html">
+      Enterprise Manager
+    </a>
+
+    <a href="oracle-dbsat.html">
+      DBSAT
+    </a>
+    <a href="oracle-label-security.html">
+      Label Security
+    </a>
+    <a href="oke-blog-post.html">
+      OKE
+    </a>
+    <a href="supplysense-ai-blog.html">
+      SupplySense AI
+    </a>  
+    <a href="fusion-applications-discovery.html">
+      Fusion Applications Discovery
+    </a> 
+
+    </nav>
+
+  </div>
+
+  <div
+    class="sidebar-overlay"
+    id="sidebarOverlay"
+    onclick="toggleMenu()">
+  </div>
+
+</nav>
+
+  <header class="hero">
+    <div class="wrap">
+      <span class="tag">Oracle Cloud, Notes From Actually Trying It</span>
+      <h1 class="title">The<br>Fusion<br>Console</h1>
+      <p class="dek">I went in expecting a wall of enterprise jargon. I came out with a decent mental model of how Oracle actually runs the environments underneath Fusion Applications, and a few things genuinely surprised me.</p>
+      <div class="meta-row">
+        <span class="by">Madhalasa SJ</span>
+        <span>Field notes / 7 min read</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="band-caption">Every environment is accounted for.</div>
+      <div class="band-note">
+        <div>PROD · TEST · DEV · DEMO</div>
+        <div>one console, one family</div>
+      </div>
+    </div>
+  </section>
+
+  <article>
+    <div class="wrap">
+
+      <p>So here's the thing. I'd heard "Fusion Applications" thrown around for years, mostly in the context of finance and HR software that big companies run. What I hadn't really looked at was the plumbing underneath it, the part where someone actually has to stand up, patch, and babysit the environments those apps live on. I finally sat down and read through the Oracle Cloud Infrastructure docs on Fusion Applications Environment Management, and honestly, I wasn't expecting to come away this interested.</p>
+
+      <p>Turns out it's less about the applications themselves and more about the control room behind them. The Oracle Cloud Console gives you self-service management of the actual environments where Fusion Applications get provisioned, run, and kept alive. That's a very different problem than "here's a login page for your ERP.So in practice, it feels a lot more like infrastructure management than I initially expected.</p>
+
+      <h2>What you're actually working with</h2>
+      <h3 class="sub">Environments, but organized like a family tree</h3>
+      <p>When you subscribe, you don't just get one blob of software. You get a production environment, a test environment, and the option to buy development environments on top. There's also a whole separate category for demonstration environments, which are pre-loaded and configured for training or showing the product off, they give you a separate environment for training and demonstrations, without affecting the production setup.</p>
+
+      <p>The environment family was probably the first thing I had to read twice. At first I thought it was just another Oracle grouping mechanism, but then I realized it controls how the environments stay aligned for patching and upgrades. Before you spin up any of these environments, you set up a family that groups them together, and that grouping is what keeps everything on the same patch level and upgrade schedule. It's a small detail, but it solves a real headache. Anyone who's dealt with dev and prod quietly drifting out of sync knows exactly why this matters.</p>
+
+      <div class="stat-strip">
+        <div><span class="k">Production</span><span class="v">One per family, runs the real business</span></div>
+        <div><span class="k">Test / Dev</span><span class="v">Staging, validation, extension sandboxes</span></div>
+        <div><span class="k">Demo</span><span class="v">Preloaded, built for training and pitches</span></div>
+      </div>
+
+      <p>Development environments, by the way, also go by "Additional Test Environments" or ATEs, which is one of those Oracle acronyms you just have to absorb. These are the sandboxes teams use to build extensions like custom reports, pages, or integrations with other systems, and you order however many your org actually needs. Nothing forced on you.</p>
+
+      <div class="pullquote">The environment family mainly helps keep the related environments aligned.</div>
+
+      <h2>Once it's up and running</h2>
+      <p>After you create an environment, the console isn't a one-and-done setup screen, it's a place you keep coming back to. You can watch metrics and availability, see what maintenance is scheduled next, monitor maintenance while it's actually happening, and manage whatever other services are hooked into your Fusion environment. If you're on test or dev, you can refresh those environments, and you can go back in and edit things like language packs, your ingress and egress access rules, and parts of the maintenance schedule.</p>
+
+      <ul class="notes">
+        <li><span class="n">01</span>Metrics and availability, right there instead of buried in a ticketing system.</li>
+        <li><span class="n">02</span>Upcoming maintenance windows, so nothing sneaks up on a Monday morning.</li>
+        <li><span class="n">03</span>Live monitoring while maintenance is actually running.</li>
+        <li><span class="n">04</span>Refresh test and dev environments without opening a support case.</li>
+        <li><span class="n">05</span>Edit language packs and access control rules after the fact.</li>
+      </ul>
+
+      <p>Small thing that made me smile: you can set your own time zone in the console so timestamps on the Fusion-specific pages match where you actually sit, instead of everything defaulting to UTC. Not every OCI page respects that setting, only the ones specific to Fusion Applications, so you'll still see UTC elsewhere, clearly labeled. It's a minor detail, but it's the kind of thing that tells you someone actually thought about the person staring at these screens at 2am during a maintenance window.</p>
+
+      <h2>The OCI plumbing underneath</h2>
+      <p>This was where the OCI connection finally made sense to me. Fusion isn't sitting completely separately from OCI. It uses OCI for things like authentication, events and monitoring.</p>
+
+      <p>A few of those concepts worth knowing before you go in:</p>
+
+      <ul class="notes">
+      <li>
+        <span class="n">→</span>
+        <strong>Compartments:</strong>
+        <span>which are how you group and isolate resources for billing, access, and separation between teams or projects.</span>
+      </li>
+
+      <li>
+        <span class="n">→</span>
+        <strong>Regions and availability domains:</strong>
+        <span>the physical geography your resources actually sit in.</span>
+      </li>
+
+      <li>
+        <span class="n">→</span>
+        <strong>OCIDs:</strong>
+        <span>the unique identifier stamped on nearly every resource so you can reference it precisely.</span>
+      </li>
+
+      <li>
+        <span class="n">→</span>
+        <strong>IAM, groups, and policies:</strong>
+        <span>which decide who's even allowed to create an environment in the first place.</span>
+      </li>
+    </ul>
+
+      <p class="dim">If you're not an administrator, you don't set any of this up yourself anyway, you just ask whoever manages your tenancy for access and they point you at the right compartment. Which honestly takes some pressure off if all this is new to you.</p>
+
+      <h2>Getting started, in the order it actually happens</h2>
+      
+      <figure class="flow">
+        <svg width="100%" viewBox="0 0 680 660" role="img" aria-labelledby="flowTitle flowDesc">
+          <title id="flowTitle">Getting started path for Fusion Applications Environment Management</title>
+          <desc id="flowDesc">Order the subscription and sign in, land on Applications home, plan the environment family, hit Start, environments get provisioned and an email goes to the admin, then sign in and add users.</desc>
+          <defs>
+            <marker id="fa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="#7a776e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+
+          <g>
+            <rect x="180" y="20" width="320" height="60" rx="4" fill="#131313" stroke="#3a3a37" stroke-width="1"/>
+            <text x="200" y="44" font-family="'JetBrains Mono','Courier New',monospace" font-size="10" letter-spacing="0.08em" fill="#a8a49b">01 · SUBSCRIBE</text>
+            <text x="200" y="66" font-size="15" font-weight="700" fill="#f2f0ea">Order the subscription, sign into OCI</text>
+          </g>
+          <line x1="340" y1="80" x2="340" y2="122" stroke="#3a3a37" stroke-width="1" marker-end="url(#fa)"/>
+
+          <g>
+            <rect x="180" y="122" width="320" height="60" rx="4" fill="#131313" stroke="#3a3a37" stroke-width="1"/>
+            <text x="200" y="146" font-family="'JetBrains Mono','Courier New',monospace" font-size="10" letter-spacing="0.08em" fill="#a8a49b">02 · LOCATE</text>
+            <text x="200" y="168" font-size="15" font-weight="700" fill="#f2f0ea">Applications home, Go to service</text>
+          </g>
+          <line x1="340" y1="182" x2="340" y2="224" stroke="#3a3a37" stroke-width="1" marker-end="url(#fa)"/>
+
+          <g>
+            <rect x="180" y="224" width="320" height="60" rx="4" fill="#1a1a12" stroke="#e8ff3d" stroke-width="1"/>
+            <text x="200" y="248" font-family="'JetBrains Mono','Courier New',monospace" font-size="10" letter-spacing="0.08em" fill="#e8ff3d">03 · DON'T SKIP THIS</text>
+            <text x="200" y="270" font-size="15" font-weight="700" fill="#f2f0ea">Plan the environment family first</text>
+          </g>
+          <line x1="340" y1="284" x2="340" y2="326" stroke="#3a3a37" stroke-width="1" marker-end="url(#fa)"/>
+
+          <g>
+            <rect x="180" y="326" width="320" height="60" rx="4" fill="#131313" stroke="#3a3a37" stroke-width="1"/>
+            <text x="200" y="350" font-family="'JetBrains Mono','Courier New',monospace" font-size="10" letter-spacing="0.08em" fill="#a8a49b">04 · PROVISION</text>
+            <text x="200" y="372" font-size="15" font-weight="700" fill="#f2f0ea">Hit Start, follow the prompts</text>
+          </g>
+          <line x1="340" y1="386" x2="340" y2="428" stroke="#3a3a37" stroke-width="1" marker-end="url(#fa)"/>
+
+          <g>
+            <rect x="180" y="428" width="320" height="60" rx="4" fill="#10201c" stroke="#5dcaa5" stroke-width="1"/>
+            <text x="200" y="452" font-family="'JetBrains Mono','Courier New',monospace" font-size="10" letter-spacing="0.08em" fill="#5dcaa5">05 · READY</text>
+            <text x="200" y="474" font-size="15" font-weight="700" fill="#f2f0ea">Setup email lands in admin inbox</text>
+          </g>
+          <line x1="340" y1="488" x2="340" y2="530" stroke="#3a3a37" stroke-width="1" marker-end="url(#fa)"/>
+
+          <g>
+            <rect x="180" y="530" width="320" height="60" rx="4" fill="#131313" stroke="#3a3a37" stroke-width="1"/>
+            <text x="200" y="554" font-family="'JetBrains Mono','Courier New',monospace" font-size="10" letter-spacing="0.08em" fill="#a8a49b">06 · TEAM</text>
+            <text x="200" y="576" font-size="15" font-weight="700" fill="#f2f0ea">Sign in, add users by job function</text>
+          </g>
+        </svg>
+      </figure>
+
+      <div class="pullquote">It's not flashy. It's the kind of tool that just quietly keeps things from breaking.</div>
+
+      <p>What I didn't expect going into this was to come away thinking of it as genuinely well organized infrastructure tooling rather than another dense enterprise manual. The environment family idea, the fact that maintenance and monitoring live in the same place you provision from, the time zone thing, these aren't particularly flashy features, but they address some of the practical things you have to deal with when managing environments. That's usually a good sign.</p>
+
+      <p class="dim">If you're about to manage Fusion Applications environments for the first time, I'd start with the planning docs for environment families before touching the console. It's the one decision that's genuinely annoying to walk back later.</p>
+
+      <div class="sign">
+        Source referenced: <a class="src" href="https://docs.oracle.com/en-us/iaas/Content/fusion-applications/overview.htm" target="_blank" rel="noopener">Oracle Cloud Infrastructure Docs, Fusion Applications Environment Management Overview</a>
+      </div>
+
+    </div>
+  </article>
+
+  <footer>
+    <div class="wrap">Field notes, not documentation. Check the official docs before you rely on any of this in production.</div>
+  </footer>
+
+</body>
+</html>
